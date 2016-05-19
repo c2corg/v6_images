@@ -33,3 +33,9 @@ Cleaning
 
 The files which are too old are cleaned from incoming. A simple cron triggers
 this task. There is no need for an input from the API.
+
+
+Building and running with Docker
+-------------------------------
+
+docker build -t gberaudo/c2cv6images . && docker-compose up
