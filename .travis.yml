@@ -1,0 +1,18 @@
+language: python
+sudo: required
+
+services:
+- docker
+
+python:
+- 3.4
+
+cache:
+  directories:
+  - $HOME/.cache/pip
+
+install:
+- make build
+
+script:
+- make test

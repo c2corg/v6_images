@@ -1,2 +1,5 @@
 pyramid==1.6.1
 gunicorn==19.5.0
+pytest==2.8.5
+flake8
+requests
