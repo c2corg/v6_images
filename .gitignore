@@ -2,3 +2,8 @@
 *.cache
 .build
 incoming/*.jpg
+incoming/*.gif
+incoming/*.png
+active/*.jpg
+active/*.gif
+active/*.png

@@ -7,6 +7,8 @@ config.add_renderer('myjson', JSON())
 
 config.add_route('hello', '/hello/{name}')
 config.add_route('upload', '/upload')
+config.add_route('activate', '/activate/{key}')
+config.add_static_view(name='active', path='/root/active')
 
 config.scan()
 
