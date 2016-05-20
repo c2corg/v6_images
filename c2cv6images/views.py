@@ -4,6 +4,7 @@ import shutil
 from pyramid.response import Response
 from pyramid.view import view_config
 
+from c2cv6images.convert import create_thumbnail
 
 INCOMING = "incoming"
 
@@ -19,8 +20,12 @@ def upload(request):
     filename = "%s.jpg" % uuid.uuid4()
     file_path = os.path.join(INCOMING, filename)
 
+    # Store the original image
     input_file.seek(0)
     with open(file_path, 'wb') as output_file:
         shutil.copyfileobj(input_file, output_file)
+
+    # Create an optimized thumbnail
+    create_thumbnail(INCOMING, filename)
 
     return {'filename': filename}

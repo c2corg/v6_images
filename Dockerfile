@@ -4,6 +4,8 @@ MAINTAINER info@camptocamp.com
 RUN apt-get update && apt-get install -y \
   python3 \
   wget \
+  imagemagick \
+  jpegoptim \
 && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /root/
@@ -15,6 +17,7 @@ RUN pip install -r requirements.txt
 
 COPY setup.py ./
 COPY c2cv6images c2cv6images
+COPY scripts scripts
 RUN python3 setup.py install --user
 
 EXPOSE 80

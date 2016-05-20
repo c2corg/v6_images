@@ -23,7 +23,12 @@ test: .build/venv/bin/py.test build
 
 .PHONY:
 flake8: .build/venv/bin/flake8
-	.build/venv/bin/flake8 --max-line-length=120 *.py tests c2cv6images
+	# Ignore ; on same line
+	.build/venv/bin/flake8 --max-line-length=120 --ignore=E702 *.py tests c2cv6images
 
 .PHONY:
 check: flake8 test
+
+.PHONY:
+logs:
+	scripts/show_logs.sh
