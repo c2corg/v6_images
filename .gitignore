@@ -4,6 +4,8 @@
 incoming/*.jpg
 incoming/*.gif
 incoming/*.png
+incoming/*.svg
 active/*.jpg
 active/*.gif
 active/*.png
+active/*.svg

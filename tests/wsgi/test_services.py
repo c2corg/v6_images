@@ -1,3 +1,6 @@
+import pytest
+
+
 def test_static_files(connection):
     actual = connection.get('/hello/World', cors=False)
     assert actual == 'Hello World!'
@@ -13,10 +16,12 @@ def activate_image(connection, key):
     return connection.get('/activate/' + key, cors=False)
 
 
-def test_upload_image(connection):
+@pytest.mark.parametrize("filename", [
+    'tests/violin.jpg', 'tests/piano.png', 'tests/pipe_organ.svg'
+])
+def test_upload_image(connection, filename):
     import filecmp
     import os
-    filename = 'tests/violin.jpg'
     assert os.path.isfile(filename)
 
     actual = upload_image(connection, filename)
@@ -27,9 +32,12 @@ def test_upload_image(connection):
     assert os.path.isfile(created_file)
     assert os.path.isfile(created_file_mini)
 
-    assert filecmp.cmp(created_file, filename)
-    assert os.stat(created_file).st_size == os.stat(filename).st_size
-    assert os.stat(created_file_mini).st_size < os.stat(created_file).st_size
+    if '.svg' in filename:
+        assert '.png' in key
+    else:
+        assert filecmp.cmp(created_file, filename)
+        assert os.stat(created_file).st_size == os.stat(filename).st_size
+        assert os.stat(created_file_mini).st_size < os.stat(created_file).st_size
 
 
 def test_activate(connection):

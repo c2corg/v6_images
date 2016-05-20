@@ -6,6 +6,11 @@ RUN apt-get update && apt-get install -y \
   wget \
   imagemagick \
   jpegoptim \
+  python3-wand \
+  optipng \
+  advancecomp \
+  pngcrush \
+  librsvg2-bin \
 && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /root/
