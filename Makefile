@@ -18,7 +18,7 @@ latest:
 	.build/venv/bin/pip install -r requirements.txt
 
 .PHONY:
-test: .build/venv/bin/py.test
+test: .build/venv/bin/py.test build
 	.build/venv/bin/py.test tests
 
 .PHONY:
