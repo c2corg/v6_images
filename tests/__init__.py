@@ -103,6 +103,18 @@ class WsgiConnection:
         finally:
             r.close()
 
+    def post_file(self, url, files, expected_status=200, cors=True):
+        """
+        POST the given URL (relative to the root of WSGI).
+        """
+        r = requests.post(self.base_url + url, files=files, headers=self._cors_headers(cors))
+        try:
+            check_response(r, expected_status)
+            self._check_cors(cors, r)
+            return r.json() if r.status_code != 204 else None
+        finally:
+            r.close()
+
     def put_json(self, url, json, expected_status=200, cors=True):
         """
         POST the given URL (relative to the root of WSGI).

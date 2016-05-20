@@ -23,7 +23,7 @@ test: .build/venv/bin/py.test
 
 .PHONY:
 flake8: .build/venv/bin/flake8
-	.build/venv/bin/flake8 --max-line-length=120 *.py tests
+	.build/venv/bin/flake8 --max-line-length=120 *.py tests c2cv6images
 
 .PHONY:
 check: flake8 test

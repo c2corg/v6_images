@@ -2,7 +2,7 @@
 wsgi:
   image: gberaudo/c2cv6images:latest
   volumes:
-  - $HOME/.aws:/root/.aws:ro
+    - ./incoming:/root/incoming
   environment:
     SECRET: 42
     LOG_LEVEL: DEBUG
