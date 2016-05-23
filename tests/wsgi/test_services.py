@@ -6,10 +6,11 @@ def test_static_files(connection):
     assert actual == 'Hello World!'
 
 
-def upload_image(connection, filename):
+def upload_image(connection, filename, expected_status=200):
     with open(filename, 'rb') as img_file:
         files = {'file': img_file}
-        return connection.post_file('/upload', files, cors=False)
+        return connection.post_file(
+            '/upload', files, expected_status=expected_status, cors=False)
 
 
 def activate_image(connection, key):
@@ -17,9 +18,20 @@ def activate_image(connection, key):
 
 
 @pytest.mark.parametrize("filename", [
-    'tests/violin.jpg', 'tests/piano.png', 'tests/pipe_organ.svg'
+    'tests/music.tiff'
 ])
-def test_upload_image(connection, filename):
+def test_upload_unsupported_image(connection, filename):
+    import os
+    assert os.path.isfile(filename)
+
+    upload_image(connection, filename, expected_status=400)
+
+
+@pytest.mark.parametrize("filename", [
+    'tests/violin.jpg', 'tests/piano.png', 'tests/pipe_organ.svg',
+    'tests/music.gif'
+])
+def test_upload_supported_image(connection, filename):
     import filecmp
     import os
     assert os.path.isfile(filename)

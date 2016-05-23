@@ -47,8 +47,8 @@ def upload(request):
     kind = get_format(raw_file)
     if kind == 'JPEG':
         kind = 'jpg'
-    elif kind == 'PNG':
-        kind = 'png'
+    elif kind == 'PNG' or kind == 'GIF':
+        kind = kind.lower()
     elif kind == 'SVG':
         # Save the original SVG file and
         # FIXME: why do we need to rasterize?

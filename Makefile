@@ -19,7 +19,7 @@ latest:
 
 .PHONY:
 test: .build/venv/bin/py.test build
-	.build/venv/bin/py.test tests
+	.build/venv/bin/py.test tests; ERROR=$$?; [ 0 -eq $$ERROR ] || (scripts/show_logs.sh; exit $$ERROR)
 
 .PHONY:
 flake8: .build/venv/bin/flake8

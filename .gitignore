@@ -5,7 +5,9 @@ incoming/*.jpg
 incoming/*.gif
 incoming/*.png
 incoming/*.svg
+incoming/*_raw
 active/*.jpg
 active/*.gif
 active/*.png
 active/*.svg
+active/*_raw
