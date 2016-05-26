@@ -11,3 +11,4 @@ active/*.gif
 active/*.png
 active/*.svg
 active/*_raw
+docker-compose.override.yml
