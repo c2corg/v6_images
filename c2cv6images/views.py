@@ -9,7 +9,6 @@ from pyramid.view import view_config
 from wand.image import Image
 
 from c2cv6images.convert import create_thumbnail, rasterize_svg
-from c2cv6images.activate import activate_key
 
 INCOMING = "incoming"
 
@@ -69,18 +68,3 @@ def upload(request):
     filename = create_thumbnail(INCOMING, pre_key, kind)
 
     return {'filename': filename}
-
-
-@view_config(route_name='activate', renderer='json')
-def activate(request):
-    key = request.matchdict['key']
-
-    filename = INCOMING + '/' + key
-
-    if not os.path.isfile(filename):
-        request.response.status_code = 400
-        return {'error': 'Key does not exist. Already activated? Expired?'}
-
-    activate_key(INCOMING, key)
-
-    return {}
