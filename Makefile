@@ -15,15 +15,15 @@ latest:
 	pyvenv .build/venv
 
 .build/venv/bin/py.test .build/venv/bin/flake8: requirements.txt .build/venv/bin/python
-	.build/venv/bin/pip install -r requirements.txt
+	.build/venv/bin/pip install -r requirements_host.txt
 
 .PHONY:
 test-inside: .build/venv/bin/py.test build
-	docker-compose run wsgi python3 /usr/local/lib/python3.4/dist-packages/pytest.py -v tests/inside
+	docker-compose run -e TRAVIS=$$TRAVIS wsgi python3 /usr/local/lib/python3.4/dist-packages/pytest.py -v tests/inside
 
 .PHONY:
 test-outside: .build/venv/bin/py.test build
-	.build/venv/bin/py.test tests/wsgi; ERROR=$$?; [ 0 -eq $$ERROR ] || (scripts/show_logs.sh; exit $$ERROR)
+	.build/venv/bin/py.test -v tests/wsgi; ERROR=$$?; [ 0 -eq $$ERROR ] || (scripts/show_logs.sh; exit $$ERROR)
 
 .PHONY:
 test: test-outside test-inside
@@ -43,3 +43,11 @@ logs:
 .PHONY:
 enter:
 	docker exec -it c2cv6images_wsgi_1 bash
+
+.PHONY:
+clean:
+	rm -rf .build __pycache__
+
+.PHONY:
+cleanall: clean
+	rm -rf active/* incoming/*

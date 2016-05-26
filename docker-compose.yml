@@ -5,7 +5,7 @@ wsgi:
     - ./incoming:/root/incoming
     - ./active:/root/active
   environment:
-    SECRET: 42
-    LOG_LEVEL: DEBUG
+    INCOMING_BUCKET: c2corgv6-dev
+    AWS_DEFAULT_REGION: eu-west-1
   ports:
   - 8480:80
