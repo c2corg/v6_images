@@ -35,7 +35,7 @@ class Composition(object):
 
 
 def wait_wsgi():
-    timeout = time.time() + 60.0
+    timeout = time.time() + 7.0
     while True:
         try:
             LOG.info("Trying to connect to WSGI... ")
