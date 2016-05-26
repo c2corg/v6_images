@@ -19,7 +19,7 @@ latest:
 
 .PHONY:
 test-inside: .build/venv/bin/py.test build
-	docker-compose run wsgi python3 /usr/local/lib/python3.4/dist-packages/pytest.py tests/inside
+	docker-compose run wsgi python3 /usr/local/lib/python3.4/dist-packages/pytest.py -v tests/inside
 
 .PHONY:
 test-outside: .build/venv/bin/py.test build
