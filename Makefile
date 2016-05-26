@@ -32,3 +32,7 @@ check: flake8 test
 .PHONY:
 logs:
 	scripts/show_logs.sh
+
+.PHONY:
+enter:
+	docker exec -it c2cv6images_wsgi_1 bash
