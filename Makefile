@@ -18,8 +18,15 @@ latest:
 	.build/venv/bin/pip install -r requirements.txt
 
 .PHONY:
-test: .build/venv/bin/py.test build
-	.build/venv/bin/py.test tests; ERROR=$$?; [ 0 -eq $$ERROR ] || (scripts/show_logs.sh; exit $$ERROR)
+test-inside: .build/venv/bin/py.test build
+	docker-compose run wsgi python3 /usr/local/lib/python3.4/dist-packages/pytest.py tests/inside
+
+.PHONY:
+test-outside: .build/venv/bin/py.test build
+	.build/venv/bin/py.test tests/wsgi; ERROR=$$?; [ 0 -eq $$ERROR ] || (scripts/show_logs.sh; exit $$ERROR)
+
+.PHONY:
+test: test-outside test-inside
 
 .PHONY:
 flake8: .build/venv/bin/flake8

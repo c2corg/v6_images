@@ -22,6 +22,8 @@ RUN pip install -r requirements.txt
 COPY setup.py ./
 COPY c2cv6images c2cv6images
 COPY scripts scripts
+COPY tests tests
+
 RUN pip install .
 
 EXPOSE 80
