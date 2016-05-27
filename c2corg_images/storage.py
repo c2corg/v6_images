@@ -36,7 +36,7 @@ def send_s3(path, key):
     now = datetime.datetime.now()
     expires = now + datetime.timedelta(hours=EXPIRE_HOURS)
     with open(path + '/' + key, 'rb') as data:
-        r = bucket.put_object(Key=key, Body=data, Expires=expires)
+        bucket.put_object(Key=key, Body=data, Expires=expires)
 
 
 def send_and_unlink(path, key):

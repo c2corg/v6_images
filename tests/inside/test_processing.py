@@ -1,7 +1,7 @@
 import pytest
 import shutil
 
-from c2cv6images.convert import create_thumbnail, rasterize_svg
+from c2corg_images.convert import create_thumbnail, rasterize_svg
 
 
 @pytest.mark.parametrize("name,kind", [

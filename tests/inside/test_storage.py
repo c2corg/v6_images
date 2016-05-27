@@ -3,7 +3,7 @@ import shutil
 import tempfile
 from tests import utils
 
-from c2cv6images.storage import send_local, send_s3
+from c2corg_images.storage import send_local, send_s3
 
 
 def test_send_local():

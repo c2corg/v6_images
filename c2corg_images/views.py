@@ -8,7 +8,7 @@ from pyramid.view import view_config
 
 from wand.image import Image
 
-from c2cv6images.convert import create_thumbnail, rasterize_svg
+from c2corg_images.convert import create_thumbnail, rasterize_svg
 
 INCOMING = "incoming"
 

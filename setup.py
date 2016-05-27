@@ -2,6 +2,6 @@ from setuptools import setup, find_packages
 
 
 setup(
-    name='c2cv6images',
+    name='c2corg_images',
     packages=find_packages(),
 )

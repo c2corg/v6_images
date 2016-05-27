@@ -20,11 +20,11 @@ COPY requirements.txt ./
 RUN pip install -r requirements.txt
 
 COPY setup.py ./
-COPY c2cv6images c2cv6images
+COPY c2corg_images c2corg_images
 COPY scripts scripts
 COPY tests tests
 
 RUN pip install .
 
 EXPOSE 80
-CMD ["gunicorn", "-w", "4", "-b", "0.0.0.0:80", "c2cv6images:app"]
+CMD ["gunicorn", "-w", "4", "-b", "0.0.0.0:80", "c2corg_images:app"]

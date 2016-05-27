@@ -28,10 +28,10 @@ class Composition(object):
         subprocess.check_call(['docker-compose', '--file', self.composition, 'stop'])
 
     def stop(self, container):
-        subprocess.check_call(['docker', '--log-level=warn', 'stop', 'c2cv6images_%s_1' % container])
+        subprocess.check_call(['docker', '--log-level=warn', 'stop', 'c2corg_images_%s_1' % container])
 
     def restart(self, container):
-        subprocess.check_call(['docker', '--log-level=warn', 'restart', 'c2cv6images_%s_1' % container])
+        subprocess.check_call(['docker', '--log-level=warn', 'restart', 'c2corg_images_%s_1' % container])
 
 
 def wait_wsgi():

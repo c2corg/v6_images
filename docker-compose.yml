@@ -1,6 +1,6 @@
 #A compose file for integration tests and development
 wsgi:
-  image: gberaudo/c2cv6images:latest
+  image: gberaudo/c2corg_images:latest
   volumes:
     - ./incoming:/root/incoming
     - ./active:/root/active

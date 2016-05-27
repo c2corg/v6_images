@@ -38,4 +38,4 @@ this task. There is no need for an input from the API.
 Building and running with Docker
 -------------------------------
 
-docker build -t gberaudo/c2cv6images . && docker-compose up
+docker build -t gberaudo/c2corg_images . && docker-compose up
