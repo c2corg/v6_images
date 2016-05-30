@@ -1,8 +1,5 @@
-# On Debian, you need to install these packages:
-# jpegoptim optipng pngcrush advancecomp
-
 import subprocess
-from os.path import splitext
+from wand.image import Image
 
 import logging
 log = logging.getLogger(__name__)
@@ -14,24 +11,34 @@ def rasterize_svg(svgfile, pngfile):
     subprocess.check_call(args)
 
 
-def create_thumbnail(path, pre_key, kind):
+def transform(original_file, target_file, geometry):
+    with Image(filename=original_file) as image:
+        with image.clone() as i:
+            i.type = image.type
+            i.alpha_channel = image.alpha_channel
+            i.transform(resize=geometry)
+            i.save(filename=target_file)
+
+
+def format_config_template(path, pre_key, kind, template):
+    return template \
+        .replace('%(base)', path + '/' + pre_key) \
+        .replace('%(kind)', kind)
+
+
+def create_thumbnail(path, pre_key, kind, config):
     key = '%s.%s' % (pre_key, kind)
-    target_key = 'mini_' + key
     original_file = path + '/' + key
-    target_file = path + '/' + target_key
+    target_file = format_config_template(path, pre_key, kind, config['template'])
 
-    log.info('Creating thumbnail for %s', key)
-    args = ['scripts/resize.sh', original_file, target_file]
+    log.info('Creating thumbnail for %s in %s', key, target_file)
+    transform(original_file, target_file, config['geometry'])
 
-    subprocess.check_call(args)
+    optimize(target_file, kind)
 
-    optimize(path, target_key)
-
-    return key
+    return target_file
 
 
-def optimize(path, key):
-    target_file = path + '/' + key
-    ext = splitext(key)[1].lower()
-    cmd = ['scripts/optimize%s.sh' % ext, target_file]
+def optimize(filename, kind):
+    cmd = ['scripts/optimize.%s.sh' % kind, filename]
     subprocess.check_call(cmd)

@@ -12,6 +12,15 @@ from c2corg_images.convert import create_thumbnail, rasterize_svg
 
 INCOMING = "incoming"
 
+# See http://docs.wand-py.org/en/0.4.1/guide/resizecrop.html
+# Max 800, keep aspect ratio
+# Max 120x120 don't keep ratio
+THUMBNAIL_CONFIGS = [
+    {'template': '%(base)BI.%(kind)', 'geometry': '800x800>'},
+    {'template': '%(base)MI.%(kind)', 'geometry': '250x250>'},
+    {'template': '%(base)SI.%(kind)', 'geometry': '120x120!'}
+]
+
 
 @view_config(route_name='hello')
 def hello_world(request):
@@ -65,6 +74,7 @@ def upload(request):
     os.rename(raw_file, original_file)
 
     # Create an optimized thumbnail
-    filename = create_thumbnail(INCOMING, pre_key, kind)
+    for config in THUMBNAIL_CONFIGS:
+        create_thumbnail(INCOMING, pre_key, kind, config)
 
-    return {'filename': filename}
+    return {'filename': pre_key + '.' + kind}

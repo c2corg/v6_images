@@ -2,6 +2,7 @@ import pytest
 import shutil
 
 from c2corg_images.convert import create_thumbnail, rasterize_svg
+from c2corg_images.views import THUMBNAIL_CONFIGS
 
 
 @pytest.mark.parametrize("name,kind", [
@@ -17,13 +18,11 @@ def test_create_thumbnail(name, kind):
     shutil.copyfile(test_filename, original_filename)
     assert os.path.isfile(original_filename)
 
-    # Create thumbnail
-    key = create_thumbnail('incoming', name, kind)
-
-    # Check thumbnail exists
-    created_file_mini = 'incoming/mini_' + key
-    assert os.path.isfile(created_file_mini)
-    assert os.stat(created_file_mini).st_size < os.stat(original_filename).st_size
+    # Create thumbnails
+    for config in THUMBNAIL_CONFIGS:
+        created_thumbnail = create_thumbnail('incoming', name, kind, config)
+        assert os.path.isfile(created_thumbnail), config
+        # assert os.stat(created_thumbnail).st_size < os.stat(original_filename).st_size, config
 
 
 def test_rasterize_svg():
