@@ -27,7 +27,7 @@ def hello_world(request):
     return Response('Hello %(name)s!' % request.matchdict)
 
 
-def get_format(filename):
+def get_format(filename: str) -> str:
     with Image(filename=filename) as image:
         return image.format
 
@@ -35,7 +35,7 @@ def get_format(filename):
 epoch = datetime(1970, 1, 1)
 
 
-def create_pseudo_unique_key():
+def create_pseudo_unique_key() -> str:
     # https://github.com/c2corg/camptocamp.org/blob/1e60b94803765ca09fba533755dad0ecd4cad262/apps/frontend/lib/c2cTools.class.php  # noqa
     since_epoch = int((datetime.now() - epoch).total_seconds())
     return "%d_%d" % (since_epoch, random.randint(0, 2**31 - 1))

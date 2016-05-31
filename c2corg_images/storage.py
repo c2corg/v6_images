@@ -10,7 +10,7 @@ log = logging.getLogger(__name__)
 EXPIRE_HOURS = 2
 
 
-def send_local(path, key):
+def send_local(path: str, key: str):
     """
     For testing locally or this Travis the file is directly activated.
     The file is copied to the active directory.
@@ -22,7 +22,7 @@ def send_local(path, key):
     shutil.copyfile(src, target)
 
 
-def send_s3(path, key):
+def send_s3(path: str, key: str):
     """
     For production, the file is sent to a private S3 bucket, with an
     expiration of 2 hours. The file must be activated by the API (moved to
@@ -39,12 +39,12 @@ def send_s3(path, key):
         bucket.put_object(Key=key, Body=data, Expires=expires)
 
 
-def send_and_unlink(path, key):
+def send_and_unlink(path: str, key: str):
     backend = os.environ['STORAGE_BACKEND']
     if backend == 's3':
         send_s3(path, key)
     elif backend == 'local':
         send_local(path, key)
     else:
-        raise 'Unhandled storage backend ' + backend
+        raise Exception('Unhandled storage backend ' + backend)
     os.unlink(path + '/' + key)

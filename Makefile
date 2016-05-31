@@ -14,12 +14,16 @@ latest:
 .build/venv/bin/python .build/venv/bin/pip:
 	pyvenv .build/venv
 
-.build/venv/bin/py.test .build/venv/bin/flake8: requirements.txt .build/venv/bin/python
+.build/venv/bin/mypy .build/venv/bin/py.test .build/venv/bin/flake8: requirements_host.txt .build/venv/bin/python
 	.build/venv/bin/pip install -r requirements_host.txt
 
 .PHONY:
-test-inside: .build/venv/bin/py.test build
-	docker-compose run -e TRAVIS=$$TRAVIS wsgi python3 /usr/local/lib/python3.4/dist-packages/pytest.py -v tests/inside
+mypy: build
+	docker-compose run -e TRAVIS=$$TRAVIS wsgi scripts/check_typing.sh
+
+.PHONY:
+test-inside: build
+	docker-compose run -e TRAVIS=$$TRAVIS wsgi scripts/launch_inside_tests.sh
 
 .PHONY:
 test-outside: .build/venv/bin/py.test build
