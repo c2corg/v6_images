@@ -38,7 +38,7 @@ flake8: .build/venv/bin/flake8
 	.build/venv/bin/flake8 --max-line-length=120 --ignore=E702 *.py tests c2corg_images
 
 .PHONY:
-check: flake8 test
+check: flake8 mypy test
 
 .PHONY:
 logs:
