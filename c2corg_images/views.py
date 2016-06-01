@@ -41,6 +41,17 @@ def create_pseudo_unique_key() -> str:
     return "%d_%d" % (since_epoch, random.randint(0, 2**31 - 1))
 
 
+@view_config(route_name='upload', request_method='OPTIONS')
+def upload_options(request):
+    request.response.headers.update({
+        'Access-Control-Allow-Origin': request.headers['Origin'],
+        'Access-Control-Allow-Methods': 'POST,GET,OPTIONS',
+        'Access-Control-Allow-Headers': 'Origin, Content-Type, Accept, Authorization',
+        'Access-Control-Max-Age': '1728000',
+    })
+    return request.response
+
+
 @view_config(route_name='upload', renderer='json')
 def upload(request):
     input_file = request.POST['file'].file
