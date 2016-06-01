@@ -22,9 +22,9 @@ THUMBNAIL_CONFIGS = [
 ]
 
 
-@view_config(route_name='hello')
-def hello_world(request):
-    return Response('Hello %(name)s!' % request.matchdict)
+@view_config(route_name='ping')
+def ping(request):
+    return Response('Pong!' % request.matchdict)
 
 
 def get_format(filename: str) -> str:

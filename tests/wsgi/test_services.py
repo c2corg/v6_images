@@ -1,9 +1,9 @@
 import pytest
 
 
-def test_static_files(connection):
-    actual = connection.get('/hello/World', cors=False)
-    assert actual == 'Hello World!'
+def test_service_is_up(connection):
+    actual = connection.get('/ping', cors=False)
+    assert actual == 'Pong!'
 
 
 def upload_image(connection, filename, expected_status=200):
