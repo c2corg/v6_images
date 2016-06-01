@@ -10,6 +10,9 @@ from wand.image import Image
 
 from c2corg_images.convert import create_thumbnail, rasterize_svg
 
+import logging
+log = logging.getLogger(__name__)
+
 INCOMING = "incoming"
 
 # See http://docs.wand-py.org/en/0.4.1/guide/resizecrop.html
@@ -57,13 +60,21 @@ def upload(request):
     input_file = request.POST['file'].file
     pre_key = create_pseudo_unique_key()
 
+    log.debug('%s - received upload request', pre_key)
     # Store the original image as raw file
     raw_file = '%s/%s_raw' % (INCOMING, pre_key)
     input_file.seek(0)
     with open(raw_file, 'wb') as output_file:
         shutil.copyfileobj(input_file, output_file)
+        log.debug('%s - copied raw file to %s', pre_key, output_file)
 
-    kind = get_format(raw_file)
+    try:
+        kind = get_format(raw_file)
+        log.debug('%s - detected format is %s', pre_key, kind)
+    except:
+        log.exception('Bad format for %s', output_file)
+        return {'error': 'Unknown image format'}
+
     if kind == 'JPEG':
         kind = 'jpg'
     elif kind == 'PNG' or kind == 'GIF':
@@ -74,7 +85,9 @@ def upload(request):
         # Quality: we should rasterize directly from SVG to thumbnails
         original_svg_file = "%s/%s.svg" % (INCOMING, pre_key)
         os.rename(raw_file, original_svg_file)
+        log.debug('%s - rasterizing SVG', pre_key)
         rasterize_svg(original_svg_file, raw_file)
+        log.debug('%s - rasterizing SVG - done', pre_key)
         kind = 'png'
     else:
         request.response.status_code = 400
@@ -86,6 +99,9 @@ def upload(request):
 
     # Create an optimized thumbnail
     for config in THUMBNAIL_CONFIGS:
+        log.debug('%s - creating thumbnail %s', pre_key, config['template'])
         create_thumbnail(INCOMING, pre_key, kind, config)
+        log.debug('%s - creating thumbnail done %s', pre_key, config['template'])
 
+    log.debug('%s - returning response', pre_key)
     return {'filename': pre_key + '.' + kind}
