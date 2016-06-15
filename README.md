@@ -14,7 +14,7 @@ The original image uploaded by the user is:
 - stored locally in an "incoming" directory;
 - converted to smaller sizes.
 
-The image is not uploaded to S3 immediately.
+The image is uploaded immediately to S3.
 The user receives the renamed filename.
 
 
@@ -23,16 +23,14 @@ Activation
 ----------
 
 The user associates the filename to a document, which is stored in the API.
-At that time, an authenticated activation request is sent to this backend and
-the file uploaded to S3; in addition, the files are deleted from incoming.
+At that time, a request is sent to S3 to move the thumbnails from the incoming bucket to the public bucket.
 This step ensures the image is associated with an authenticated user.
 
 
 Cleaning
 --------
 
-The files which are too old are cleaned from incoming. A simple cron triggers
-this task. There is no need for an input from the API.
+The files which were not activated are automatically expired by S3.
 
 
 Building and running with Docker
