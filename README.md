@@ -36,4 +36,4 @@ The files which were not activated are automatically expired by S3.
 Building and running with Docker
 -------------------------------
 
-docker build -t gberaudo/c2corg_images . && docker-compose up
+`make run`
