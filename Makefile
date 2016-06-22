@@ -1,6 +1,6 @@
 .PHONY:
 build:
-	docker build -t gberaudo/c2corg_images .
+	docker build -t c2corg/v6_images:latest .
 
 .PHONY:
 run: build
@@ -8,7 +8,7 @@ run: build
 
 .PHONY:
 latest:
-	docker pull gberaudo/c2corg_images
+	docker pull docker.io/c2corg/v6_images:latest
 	docker-compose up
 
 .build/venv/bin/python .build/venv/bin/pip:
@@ -46,7 +46,7 @@ logs:
 
 .PHONY:
 enter:
-	docker exec -it c2corg_images_wsgi_1 bash
+	docker exec -it v6_images_wsgi_1 bash
 
 .PHONY:
 clean:
