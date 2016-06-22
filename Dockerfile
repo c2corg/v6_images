@@ -1,15 +1,18 @@
-FROM debian:jessie
-MAINTAINER info@camptocamp.com
+FROM docker.io/debian:jessie
 
-RUN apt-get update && apt-get install -y \
-  python3 \
-  wget \
-  imagemagick \
-  jpegoptim \
-  python3-wand \
-  optipng \
-  librsvg2-bin \
-&& rm -rf /var/lib/apt/lists/*
+ENV DEBIAN_FRONTEND noninteractive
+
+RUN apt-get update \
+ && apt-get -y upgrade \
+ && apt-get install -y \
+    python3 \
+    wget \
+    imagemagick \
+    jpegoptim \
+    python3-wand \
+    optipng \
+    librsvg2-bin \
+ && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /root/
 RUN wget https://bootstrap.pypa.io/get-pip.py && python3 get-pip.py && rm -f get-pip.py

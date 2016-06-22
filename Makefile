@@ -1,5 +1,6 @@
 .PHONY:
 build:
+	docker pull docker.io/debian:jessie
 	docker build -t c2corg/v6_images:latest .
 
 .PHONY:
