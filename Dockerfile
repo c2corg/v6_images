@@ -2,6 +2,9 @@ FROM docker.io/debian:jessie
 
 ENV DEBIAN_FRONTEND noninteractive
 
+RUN echo 'APT::Install-Recommends "0";' > /etc/apt/apt.conf.d/50no-install-recommends
+RUN echo 'APT::Install-Suggests "0";' > /etc/apt/apt.conf.d/50no-install-suggests
+
 RUN apt-get update \
  && apt-get -y upgrade \
  && apt-get install -y \
@@ -12,6 +15,7 @@ RUN apt-get update \
     python3-wand \
     optipng \
     librsvg2-bin \
+ && apt-get clean \
  && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /root/
