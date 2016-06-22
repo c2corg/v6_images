@@ -55,3 +55,8 @@ clean:
 .PHONY:
 cleanall: clean
 	rm -rf active/* incoming/*
+
+.PHONY:
+publish:
+	docker login -e $$DOCKER_EMAIL -u $$DOCKER_USER -p $$DOCKER_PASS
+	docker push c2corg/v6_images:latest
