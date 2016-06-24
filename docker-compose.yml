@@ -1,11 +1,10 @@
 #A compose file for integration tests and development
 wsgi:
   image: c2corg/v6_images:latest
-  volumes:
-    - ./incoming:/root/incoming
-    - ./active:/root/active
   environment:
     INCOMING_BUCKET: c2corgv6-dev
     AWS_DEFAULT_REGION: eu-west-1
+  cap_add:
+    - NET_BIND_SERVICE
   ports:
-  - 8480:80
+  - 8480:8080

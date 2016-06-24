@@ -19,7 +19,7 @@ RUN apt-get update \
  && apt-get clean \
  && rm -rf /var/lib/apt/lists/*
 
-WORKDIR /root/
+WORKDIR /var/www/
 
 COPY requirements.txt ./
 COPY requirements_pip.txt ./
@@ -33,5 +33,9 @@ RUN pip3 install -r requirements_pip.txt && \
     pip  install . && \
     rm -fr .cache
 
-EXPOSE 80
-CMD ["gunicorn", "-w", "4", "-b", "0.0.0.0:80", "c2corg_images:app"]
+RUN mkdir -p /var/www/incoming /var/www/active && \
+    chown www-data:www-data /var/www/incoming /var/www/active
+
+EXPOSE 8080
+USER www-data
+CMD ["gunicorn", "-w", "4", "-b", "0.0.0.0:8080", "c2corg_images:app"]
