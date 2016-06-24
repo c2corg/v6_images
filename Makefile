@@ -24,7 +24,7 @@ mypy: build
 
 .PHONY:
 test-inside: build
-	docker-compose run --rm -e TRAVIS=$$TRAVIS wsgi scripts/launch_inside_tests.sh
+	docker-compose -f docker-compose.test.yml run --rm -e TRAVIS=$$TRAVIS wsgi scripts/launch_inside_tests.sh
 
 .PHONY:
 test-outside: .build/venv/bin/py.test build
