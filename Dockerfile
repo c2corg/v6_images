@@ -25,13 +25,14 @@ COPY requirements.txt ./
 COPY requirements_pip.txt ./
 COPY setup.py ./
 COPY c2corg_images c2corg_images
-COPY scripts scripts
-COPY tests tests
 
 RUN pip3 install -r requirements_pip.txt && \
     pip  install -r requirements.txt && \
     pip  install . && \
     rm -fr .cache
+
+COPY scripts scripts
+COPY tests tests
 
 RUN mkdir -p /var/www/incoming /var/www/active && \
     chown www-data:www-data /var/www/incoming /var/www/active
