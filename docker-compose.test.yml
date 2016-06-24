@@ -1,0 +1,7 @@
+wsgi:
+  extends:
+    file: docker-compose.yml
+    service: wsgi
+  environment:
+    STORAGE_BACKEND: local
+    API_SECRET_KEY: good_secret

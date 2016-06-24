@@ -5,6 +5,7 @@ from datetime import datetime
 
 from pyramid.response import Response
 from pyramid.view import view_config
+from pyramid.httpexceptions import HTTPForbidden
 
 from wand.image import Image
 
@@ -94,8 +95,34 @@ def upload(request):
     # Create an optimized thumbnail
     for config in THUMBNAIL_CONFIGS:
         log.debug('%s - creating thumbnail %s', pre_key, config['template'])
-        create_thumbnail(INCOMING, pre_key, kind, config)
+        thumbnail = create_thumbnail(INCOMING, pre_key, kind, config)
         log.debug('%s - creating thumbnail done %s', pre_key, config['template'])
+
+        log.debug('%s - uploading thumbnail %s', pre_key, config['template'])
+        send_and_unlink(INCOMING, os.path.basename(thumbnail))
+        log.debug('%s - uploading thumbnail done %s', pre_key, config['template'])
+
+    log.debug('%s - uploading original file', pre_key)
+    send_and_unlink(INCOMING, pre_key + '.' + kind)
+    log.debug('%s - uploading original file done', pre_key)
 
     log.debug('%s - returning response', pre_key)
     return {'filename': pre_key + '.' + kind}
+
+
+def _files_to_publish(key):
+    files = [key]
+    for config in THUMBNAIL_CONFIGS:
+        base, ext = os.path.splitext(key)
+        files.append(format_config_template('', base, ext[1:], config['template']))
+    return files
+
+
+@view_config(route_name='publish', renderer='json')
+def publish(request):
+    if request.POST['secret'] != os.environ['API_SECRET_KEY']:
+        raise HTTPForbidden('Bad secret key')
+    filename = request.POST['filename']
+    for key in _files_to_publish(filename):
+        publish_(key)
+    return {'success': True}
