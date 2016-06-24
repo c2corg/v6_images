@@ -20,11 +20,11 @@ latest:
 
 .PHONY:
 mypy: build
-	docker-compose run -e TRAVIS=$$TRAVIS wsgi scripts/check_typing.sh
+	docker-compose run --rm -e TRAVIS=$$TRAVIS wsgi scripts/check_typing.sh
 
 .PHONY:
 test-inside: build
-	docker-compose run -e TRAVIS=$$TRAVIS wsgi scripts/launch_inside_tests.sh
+	docker-compose run --rm -e TRAVIS=$$TRAVIS wsgi scripts/launch_inside_tests.sh
 
 .PHONY:
 test-outside: .build/venv/bin/py.test build
@@ -51,7 +51,9 @@ enter:
 
 .PHONY:
 clean:
-	rm -rf .build __pycache__ .cache
+	rm -rf .build .cache
+	find . -type f -path '*/__pycache__/*' -delete
+	find . -type d -name __pycache__ -delete
 
 .PHONY:
 cleanall: clean
