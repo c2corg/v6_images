@@ -17,8 +17,8 @@ def send_local(path: str, key: str):
     :param path: The directory where the source file is stored.
     :param key: The filename of the image.
     """
-    src = path + '/' + key
-    target = 'active/' + key
+    src = os.path.join(path, key)
+    target = os.path.join(os.environ['ACTIVE_FOLDER'], key)
     shutil.copyfile(src, target)
 
 
