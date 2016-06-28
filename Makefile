@@ -24,14 +24,14 @@ mypy: build
 
 .PHONY:
 test-inside: build
-	docker-compose run --rm -e TRAVIS=$$TRAVIS wsgi scripts/launch_inside_tests.sh
+	docker-compose -f docker-compose.test.yml run --rm -e TRAVIS=$$TRAVIS wsgi scripts/launch_inside_tests.sh
 
 .PHONY:
 test-outside: .build/venv/bin/py.test build
 	.build/venv/bin/py.test -v tests/wsgi; ERROR=$$?; [ 0 -eq $$ERROR ] || (scripts/show_logs.sh; exit $$ERROR)
 
 .PHONY:
-test: test-outside test-inside
+test: test-inside test-outside
 
 .PHONY:
 flake8: .build/venv/bin/flake8
