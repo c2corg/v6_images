@@ -8,21 +8,15 @@ from pyramid.view import view_config
 
 from wand.image import Image
 
-from c2corg_images.convert import create_thumbnail, rasterize_svg
+from c2corg_images import INCOMING, THUMBNAIL_CONFIGS
+from c2corg_images.convert import (
+    create_thumbnail,
+    rasterize_svg,
+    format_config_template)
+from c2corg_images.storage import send_and_unlink, publish as publish_
 
 import logging
 log = logging.getLogger(__name__)
-
-INCOMING = "incoming"
-
-# See http://docs.wand-py.org/en/0.4.1/guide/resizecrop.html
-# Max 800, keep aspect ratio
-# Max 120x120 don't keep ratio
-THUMBNAIL_CONFIGS = [
-    {'template': '%(base)BI.%(kind)', 'geometry': '800x800>'},
-    {'template': '%(base)MI.%(kind)', 'geometry': '250x250>'},
-    {'template': '%(base)SI.%(kind)', 'geometry': '120x120!'}
-]
 
 
 @view_config(route_name='ping')

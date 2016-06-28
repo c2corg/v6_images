@@ -1,6 +1,19 @@
 from pyramid.config import Configurator
 from pyramid.renderers import JSON
 from pyramid.events import NewRequest
+import os
+
+
+INCOMING = os.environ['INCOMING_FOLDER']
+
+# See http://docs.wand-py.org/en/0.4.1/guide/resizecrop.html
+# Max 800, keep aspect ratio
+# Max 120x120 don't keep ratio
+THUMBNAIL_CONFIGS = [
+    {'template': '%(base)BI.%(kind)', 'geometry': '800x800>'},
+    {'template': '%(base)MI.%(kind)', 'geometry': '250x250>'},
+    {'template': '%(base)SI.%(kind)', 'geometry': '120x120!'}
+]
 
 
 def add_cors_headers_response_callback(event):
