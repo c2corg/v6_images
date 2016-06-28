@@ -32,7 +32,7 @@ config.add_renderer('myjson', JSON())
 config.add_route('ping', '/ping')
 config.add_route('upload', '/upload')
 config.add_route('publish', '/publish')
-config.add_static_view(name='active', path='/root/active')
+config.add_static_view(name='active', path=os.environ['ACTIVE_FOLDER'])
 config.add_subscriber(add_cors_headers_response_callback, NewRequest)
 
 config.scan()
