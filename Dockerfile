@@ -29,6 +29,7 @@ COPY c2corg_images c2corg_images
 RUN pip3 install -r requirements_pip.txt && \
     pip  install -r requirements.txt && \
     pip  install . && \
+    py3compile -f . && \
     rm -fr .cache
 
 COPY scripts scripts
