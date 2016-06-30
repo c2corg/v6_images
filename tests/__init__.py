@@ -12,7 +12,7 @@ logging.getLogger("requests.packages.urllib3.connectionpool").setLevel(logging.W
 
 
 class Composition(object):
-    def __init__(self, request, composition="docker-compose.yml"):
+    def __init__(self, request, composition="docker-compose.test.yml"):
         self.composition = composition
         if os.environ.get("docker_stop", "1") == "1":
             request.addfinalizer(self.stop_all)
@@ -88,6 +88,18 @@ class WsgiConnection:
             check_response(r)
             self._check_cors(cors, r)
             return r.json() if r.status_code != 204 else None
+        finally:
+            r.close()
+
+    def post(self, url, data, expected_status=200, cors=True):
+        """
+        POST the given URL (relative to the root of WSGI).
+        """
+        r = requests.post(self.base_url + url, data=data, headers=self._cors_headers(cors))
+        try:
+            check_response(r, expected_status)
+            self._check_cors(cors, r)
+            return r.text
         finally:
             r.close()
 

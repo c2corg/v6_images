@@ -17,8 +17,8 @@ def send_local(path: str, key: str):
     :param path: The directory where the source file is stored.
     :param key: The filename of the image.
     """
-    src = path + '/' + key
-    target = 'active/' + key
+    src = os.path.join(path, key)
+    target = os.path.join(os.environ['ACTIVE_FOLDER'], key)
     shutil.copyfile(src, target)
 
 
@@ -39,6 +39,15 @@ def send_s3(path: str, key: str):
         bucket.put_object(Key=key, Body=data, Expires=expires)
 
 
+def publish_s3(key: str):
+    incoming_bucket_name = os.environ['INCOMING_BUCKET']
+    active_bucket_name = os.environ['ACTIVE_BUCKET']
+    s3 = boto3.resource('s3')
+    s3.Object(active_bucket_name, key).copy_from(
+        CopySource='{}/{}'.format(incoming_bucket_name, key))
+    s3.Object(incoming_bucket_name, key).delete()
+
+
 def send_and_unlink(path: str, key: str):
     backend = os.environ['STORAGE_BACKEND']
     if backend == 's3':
@@ -48,3 +57,13 @@ def send_and_unlink(path: str, key: str):
     else:
         raise Exception('Unhandled storage backend ' + backend)
     os.unlink(path + '/' + key)
+
+
+def publish(key: str):
+    backend = os.environ['STORAGE_BACKEND']
+    if backend == 's3':
+        publish_s3(key)
+    elif backend == 'local':
+        pass
+    else:
+        raise Exception('Unhandled storage backend ' + backend)

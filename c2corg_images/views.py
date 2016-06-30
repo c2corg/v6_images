@@ -5,24 +5,19 @@ from datetime import datetime
 
 from pyramid.response import Response
 from pyramid.view import view_config
+from pyramid.httpexceptions import HTTPForbidden
 
 from wand.image import Image
 
-from c2corg_images.convert import create_thumbnail, rasterize_svg
+from c2corg_images import INCOMING, THUMBNAIL_CONFIGS
+from c2corg_images.convert import (
+    create_thumbnail,
+    rasterize_svg,
+    format_config_template)
+from c2corg_images.storage import send_and_unlink, publish as publish_
 
 import logging
 log = logging.getLogger(__name__)
-
-INCOMING = "incoming"
-
-# See http://docs.wand-py.org/en/0.4.1/guide/resizecrop.html
-# Max 800, keep aspect ratio
-# Max 120x120 don't keep ratio
-THUMBNAIL_CONFIGS = [
-    {'template': '%(base)BI.%(kind)', 'geometry': '800x800>'},
-    {'template': '%(base)MI.%(kind)', 'geometry': '250x250>'},
-    {'template': '%(base)SI.%(kind)', 'geometry': '120x120!'}
-]
 
 
 @view_config(route_name='ping')
@@ -100,8 +95,34 @@ def upload(request):
     # Create an optimized thumbnail
     for config in THUMBNAIL_CONFIGS:
         log.debug('%s - creating thumbnail %s', pre_key, config['template'])
-        create_thumbnail(INCOMING, pre_key, kind, config)
+        thumbnail = create_thumbnail(INCOMING, pre_key, kind, config)
         log.debug('%s - creating thumbnail done %s', pre_key, config['template'])
+
+        log.debug('%s - uploading thumbnail %s', pre_key, config['template'])
+        send_and_unlink(INCOMING, os.path.basename(thumbnail))
+        log.debug('%s - uploading thumbnail done %s', pre_key, config['template'])
+
+    log.debug('%s - uploading original file', pre_key)
+    send_and_unlink(INCOMING, pre_key + '.' + kind)
+    log.debug('%s - uploading original file done', pre_key)
 
     log.debug('%s - returning response', pre_key)
     return {'filename': pre_key + '.' + kind}
+
+
+def _files_to_publish(key):
+    files = [key]
+    for config in THUMBNAIL_CONFIGS:
+        base, ext = os.path.splitext(key)
+        files.append(format_config_template('', base, ext[1:], config['template']))
+    return files
+
+
+@view_config(route_name='publish', renderer='json')
+def publish(request):
+    if request.POST['secret'] != os.environ['API_SECRET_KEY']:
+        raise HTTPForbidden('Bad secret key')
+    filename = request.POST['filename']
+    for key in _files_to_publish(filename):
+        publish_(key)
+    return {'success': True}

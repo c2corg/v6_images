@@ -21,3 +21,15 @@ def test_upload_unsupported_image(connection, filename):
     assert os.path.isfile(filename)
 
     upload_image(connection, filename, expected_status=400)
+
+
+def test_publish_bad_secret(connection):
+    connection.post('/publish',
+                    data={'secret': 'bad_secret', 'filename': 'test.png'},
+                    expected_status=403)
+
+
+def test_publish_good_secret(connection):
+    connection.post('/publish',
+                    data={'secret': 'good_secret', 'filename': 'test.png'},
+                    expected_status=200)
