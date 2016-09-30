@@ -16,7 +16,7 @@ class TestViews(unittest.TestCase):
                        'filename': 'test.png'},
                       status=403)
 
-    @patch('c2corg_images.views.publish_')
+    @patch('c2corg_images.views.incoming_storage.move')
     def test_publish_good_secret(self, publish_mock):
         """Test publish with good secret"""
         self.app.post('/publish',

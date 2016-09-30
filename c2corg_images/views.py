@@ -9,12 +9,12 @@ from pyramid.httpexceptions import HTTPForbidden
 
 from wand.image import Image
 
-from c2corg_images import INCOMING, THUMBNAIL_CONFIGS
+from c2corg_images import THUMBNAIL_CONFIGS
 from c2corg_images.convert import (
     create_thumbnail,
     rasterize_svg,
     format_config_template)
-from c2corg_images.storage import send_and_unlink, publish as publish_
+from c2corg_images.storage import temp_storage, incoming_storage, active_storage
 
 import logging
 log = logging.getLogger(__name__)
@@ -57,7 +57,7 @@ def upload(request):
 
     log.debug('%s - received upload request', pre_key)
     # Store the original image as raw file
-    raw_file = '%s/%s_raw' % (INCOMING, pre_key)
+    raw_file = '%s/%s_raw' % (temp_storage.path(), pre_key)
     input_file.seek(0)
     with open(raw_file, 'wb') as output_file:
         shutil.copyfileobj(input_file, output_file)
@@ -78,7 +78,7 @@ def upload(request):
         # Save the original SVG file and
         # FIXME: why do we need to rasterize?
         # Quality: we should rasterize directly from SVG to thumbnails
-        original_svg_file = "%s/%s.svg" % (INCOMING, pre_key)
+        original_svg_file = temp_storage.object_path("%s.svg".format(pre_key))
         os.rename(raw_file, original_svg_file)
         log.debug('%s - rasterizing SVG', pre_key)
         rasterize_svg(original_svg_file, raw_file)
@@ -89,33 +89,34 @@ def upload(request):
         return {'error': 'Unsupported image format %s' % kind}
 
     # Rename to official extension
-    original_file = "%s/%s.%s" % (INCOMING, pre_key, kind)
-    os.rename(raw_file, original_file)
+    original_key = "{}.{}".format(pre_key, kind)
+    os.rename(raw_file, temp_storage.object_path(original_key))
 
     # Create an optimized thumbnail
     for config in THUMBNAIL_CONFIGS:
         log.debug('%s - creating thumbnail %s', pre_key, config['template'])
-        thumbnail = create_thumbnail(INCOMING, pre_key, kind, config)
+        thumbnail = create_thumbnail(temp_storage.path(), pre_key, kind, config)
         log.debug('%s - creating thumbnail done %s', pre_key, config['template'])
+        thumbnail_key = os.path.basename(thumbnail)
 
         log.debug('%s - uploading thumbnail %s', pre_key, config['template'])
-        send_and_unlink(INCOMING, os.path.basename(thumbnail))
+        temp_storage.move(thumbnail_key, incoming_storage)
         log.debug('%s - uploading thumbnail done %s', pre_key, config['template'])
 
     log.debug('%s - uploading original file', pre_key)
-    send_and_unlink(INCOMING, pre_key + '.' + kind)
+    temp_storage.move(original_key, incoming_storage)
     log.debug('%s - uploading original file done', pre_key)
 
     log.debug('%s - returning response', pre_key)
     return {'filename': pre_key + '.' + kind}
 
 
-def _files_to_publish(key):
-    files = [key]
+def _keys_to_publish(key):
+    keys = [key]
     for config in THUMBNAIL_CONFIGS:
         base, ext = os.path.splitext(key)
-        files.append(format_config_template('', base, ext[1:], config['template']))
-    return files
+        keys.append(format_config_template('', base, ext[1:], config['template']).strip('/'))
+    return keys
 
 
 @view_config(route_name='publish', renderer='json')
@@ -123,6 +124,6 @@ def publish(request):
     if request.POST['secret'] != os.environ['API_SECRET_KEY']:
         raise HTTPForbidden('Bad secret key')
     filename = request.POST['filename']
-    for key in _files_to_publish(filename):
-        publish_(key)
+    for key in _keys_to_publish(filename):
+        incoming_storage.move(key, active_storage)
     return {'success': True}

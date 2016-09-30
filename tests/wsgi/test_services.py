@@ -30,6 +30,8 @@ def test_publish_bad_secret(connection):
 
 
 def test_publish_good_secret(connection):
+    body = upload_image(connection, 'tests/violin.jpg', expected_status=200)
+    filename = body['filename']
     connection.post('/publish',
-                    data={'secret': 'good_secret', 'filename': 'test.png'},
+                    data={'secret': 'good_secret', 'filename': filename},
                     expected_status=200)

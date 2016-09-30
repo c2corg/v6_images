@@ -4,8 +4,6 @@ from pyramid.events import NewRequest
 import os
 
 
-INCOMING = os.environ['INCOMING_FOLDER']
-
 # See http://docs.wand-py.org/en/0.4.1/guide/resizecrop.html
 # Max 800, keep aspect ratio
 # Max 120x120 don't keep ratio
