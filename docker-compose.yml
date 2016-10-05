@@ -1,18 +1,32 @@
 #A compose file for integration tests and development
 wsgi:
-  container_name: c2corg_images
+  container_name: c2corg_images_test
   image: c2corg/v6_images:latest
   environment:
     STORAGE_BACKEND: local  # local or s3
+
+    TEMP_FOLDER: /var/www/temp
     INCOMING_FOLDER: /var/www/incoming
     ACTIVE_FOLDER: /var/www/active
+    V5_FOLDER: /var/www/tests/data/v5_images
+
+    API_SECRET_KEY: good_secret
+
     INCOMING_BUCKET:
     ACTIVE_BUCKET:
-    AWS_DEFAULT_REGION:
+
+    V5_BUCKET:
+    V5_ENDPOINT: https://sos.exo.io
+    V5_PREFIX: EXO
+
+    AWS_DEFAULT_REGION: eu-west-1
     AWS_ACCESS_KEY_ID:
     AWS_SECRET_ACCESS_KEY:
-    API_SECRET_KEY:
+
+    EXO_ACCESS_KEY_ID:
+    EXO_SECRET_KEY:
+
   cap_add:
     - NET_BIND_SERVICE
   ports:
-  - 8480:8080
+    - 8480:8080

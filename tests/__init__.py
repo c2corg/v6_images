@@ -14,7 +14,7 @@ v5_key = '1475660224_882910455.jpg'
 
 
 class Composition(object):
-    def __init__(self, request, composition="docker-compose.test.yml"):
+    def __init__(self, request, composition="docker-compose.yml"):
         self.composition = composition
         if os.environ.get("docker_stop", "1") == "1":
             request.addfinalizer(self.stop_all)
