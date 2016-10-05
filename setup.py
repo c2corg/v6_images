@@ -7,5 +7,6 @@ setup(
     entry_points="""\
       [console_scripts]
       generate_thumbnails = c2corg_images.scripts.generate_thumbnails:main
+      migrate = c2corg_images.scripts.migrate:main
       """
 )

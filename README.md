@@ -39,6 +39,12 @@ Building and running with Docker
 `make run`
 
 
+Launch migration
+-----------------------------------
+
+``docker-compose exec images migrate [-v]``
+
+
 Generate thumbnails after migration
 -----------------------------------
 
