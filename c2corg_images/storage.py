@@ -206,4 +206,4 @@ elif os.environ['STORAGE_BACKEND'] == 'local':
 else:
     raise Exception('STORAGE_BACKEND not supported or missing')
 
-temp_storage = LocalStorage(os.path.join(os.environ['INCOMING_FOLDER'], 'temp'))
+temp_storage = LocalStorage(os.environ['TEMP_FOLDER'])
