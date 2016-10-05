@@ -10,6 +10,7 @@ log = logging.getLogger(__name__)
 
 
 EXPIRE_HOURS = 2
+PAGE_SIZE = 1000
 
 
 thread_data = threading.local()
@@ -47,9 +48,10 @@ class BaseStorage():
 
 class S3Storage(BaseStorage):
 
-    def __init__(self, bucket_name, endpoint_url=None):
+    def __init__(self, bucket_name, params={}):
         self._bucket_name = bucket_name
-        self._endpoint_url = endpoint_url
+        self._params = params
+        self._endpoint_url = self._params.get('endpoint_url', None)
 
     def resource(self):
         if self._endpoint_url not in resources():
@@ -58,20 +60,13 @@ class S3Storage(BaseStorage):
             else:
                 resource = boto3.resource(
                     service_name='s3',
-                    endpoint_url=self._endpoint_url)
-                '''
-                    ,
-                    aws_access_key_id=None,
-                    aws_secret_access_key=None,
-                    config=botocore.config.Config(
-                        s3={'addressing_style': 'path'},
-                        signature_version=None  #'v2'  #'s3'  # botocore.UNSIGNED
-                    )
-                '''
+                    **self._params)
                 resource.meta.client.meta.events.unregister('before-sign.s3',
                                                             botocore.utils.fix_s3_host)
+                '''
                 resource.meta.client.meta.events.register('choose-signer.s3.*',
                                                           botocore.handlers.disable_signing)
+                '''
             resources()[self._endpoint_url] = resource
         return resources()[self._endpoint_url]
 
@@ -82,7 +77,7 @@ class S3Storage(BaseStorage):
         return self.resource().Object(self._bucket_name, key)
 
     def keys(self):
-        for object in self.bucket().objects.page_size(1000):
+        for object in self.bucket().objects.page_size(PAGE_SIZE):
             yield object.key
 
     def exists(self, key):
@@ -170,14 +165,35 @@ class LocalStorage(BaseStorage):
             self.delete(key)
 
 
+def getS3Params(prefix):
+    params = {}
+
+    ENDPOINT = os.environ.get("{}_ENDPOINT".format(prefix), False)
+    if ENDPOINT:
+        params['endpoint_url'] = ENDPOINT
+        params['config'] = botocore.config.Config(
+            signature_version='s3'
+        )
+
+    PREFIX = os.environ.get("{}_PREFIX".format(prefix), False)
+    if PREFIX:
+        params['aws_access_key_id'] = os.environ.get("{}_ACCESS_KEY_ID".format(PREFIX))
+        params['aws_secret_access_key'] = os.environ.get("{}_SECRET_KEY".format(PREFIX))
+
+    return params
+
+
 incoming_storage = None  # type: BaseStorage
 active_storage = None  # type: BaseStorage
+v5_storage = None  # type: BaseStorage
 if os.environ['STORAGE_BACKEND'] == 's3':
-    incoming_storage = S3Storage(os.environ['INCOMING_BUCKET'])
-    active_storage = S3Storage(os.environ['ACTIVE_BUCKET'])
+    incoming_storage = S3Storage(os.environ['INCOMING_BUCKET'], getS3Params('INCOMING'))
+    active_storage = S3Storage(os.environ['ACTIVE_BUCKET'], getS3Params('ACTIVE'))
+    v5_storage = S3Storage(os.environ['V5_BUCKET'], getS3Params('V5'))
 elif os.environ['STORAGE_BACKEND'] == 'local':
     incoming_storage = LocalStorage(os.environ['INCOMING_FOLDER'])
     active_storage = LocalStorage(os.environ['ACTIVE_FOLDER'])
+    v5_storage = LocalStorage(os.environ['V5_FOLDER'])
 else:
     raise Exception('STORAGE_BACKEND not supported or missing')
 

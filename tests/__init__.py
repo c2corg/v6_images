@@ -4,7 +4,6 @@ import requests
 import subprocess
 import time
 
-
 BASE_WSGI_URL = 'http://localhost:8480/'
 LOG = logging.getLogger(__name__)
 logging.basicConfig(level=logging.DEBUG, format="%(asctime)-15s %(levelname)5s %(name)s %(message)s")
