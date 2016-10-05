@@ -10,10 +10,8 @@ from pyramid.httpexceptions import HTTPForbidden
 from wand.image import Image
 
 from c2corg_images import THUMBNAIL_CONFIGS
-from c2corg_images.convert import (
-    create_thumbnail,
-    rasterize_svg,
-    format_config_template)
+from c2corg_images.convert import rasterize_svg
+from c2corg_images.thumbnails import create_thumbnail, thumbnail_keys
 from c2corg_images.storage import temp_storage, incoming_storage, active_storage
 
 import logging
@@ -94,14 +92,13 @@ def upload(request):
 
     # Create an optimized thumbnail
     for config in THUMBNAIL_CONFIGS:
-        log.debug('%s - creating thumbnail %s', pre_key, config['template'])
-        thumbnail = create_thumbnail(temp_storage.path(), pre_key, kind, config)
-        log.debug('%s - creating thumbnail done %s', pre_key, config['template'])
-        thumbnail_key = os.path.basename(thumbnail)
+        log.debug('%s - creating thumbnail %s', pre_key, config['suffix'])
+        thumbnail_key = create_thumbnail(temp_storage.path(), original_key, config)
+        log.debug('%s - creating thumbnail done %s', pre_key, config['suffix'])
 
-        log.debug('%s - uploading thumbnail %s', pre_key, config['template'])
+        log.debug('%s - uploading thumbnail %s', pre_key, config['suffix'])
         temp_storage.move(thumbnail_key, incoming_storage)
-        log.debug('%s - uploading thumbnail done %s', pre_key, config['template'])
+        log.debug('%s - uploading thumbnail done %s', pre_key, config['suffix'])
 
     log.debug('%s - uploading original file', pre_key)
     temp_storage.move(original_key, incoming_storage)
@@ -111,19 +108,12 @@ def upload(request):
     return {'filename': pre_key + '.' + kind}
 
 
-def _keys_to_publish(key):
-    keys = [key]
-    for config in THUMBNAIL_CONFIGS:
-        base, ext = os.path.splitext(key)
-        keys.append(format_config_template('', base, ext[1:], config['template']).strip('/'))
-    return keys
-
-
 @view_config(route_name='publish', renderer='json')
 def publish(request):
     if request.POST['secret'] != os.environ['API_SECRET_KEY']:
         raise HTTPForbidden('Bad secret key')
     filename = request.POST['filename']
-    for key in _keys_to_publish(filename):
+    incoming_storage.move(filename, active_storage)
+    for key in thumbnail_keys(filename):
         incoming_storage.move(key, active_storage)
     return {'success': True}

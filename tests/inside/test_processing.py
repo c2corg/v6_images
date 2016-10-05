@@ -1,32 +1,35 @@
+import os
 import pytest
 import shutil
 
-from c2corg_images.convert import create_thumbnail, rasterize_svg
-from c2corg_images.views import THUMBNAIL_CONFIGS
+from c2corg_images import THUMBNAIL_CONFIGS
+from c2corg_images.convert import rasterize_svg
+from c2corg_images.thumbnails import create_thumbnail
+from c2corg_images.storage import temp_storage
+
+from tests import data_folder
 
 
-@pytest.mark.parametrize("name,kind", [
-    ('violin', 'jpg'), ('piano', 'png'), ('music', 'gif')
+@pytest.mark.parametrize("filename", [
+    'violin.jpg', 'piano.png', 'music.gif'
 ])
-def test_create_thumbnail(name, kind):
-    import os
-    test_filename = 'tests/' + name + '.' + kind
+def test_create_thumbnail(filename):
+    test_filename = os.path.join(data_folder, filename)
     assert os.path.isfile(test_filename)
 
     # Copy test image to incoming directory
-    original_filename = 'incoming/' + name + '.' + kind
+    original_filename = temp_storage.object_path(filename)
     shutil.copyfile(test_filename, original_filename)
     assert os.path.isfile(original_filename)
 
     # Create thumbnails
     for config in THUMBNAIL_CONFIGS:
-        created_thumbnail = create_thumbnail('incoming', name, kind, config)
-        assert os.path.isfile(created_thumbnail), config
+        thumbnail = create_thumbnail(temp_storage.path(), filename, config)
+        assert os.path.isfile(temp_storage.object_path(thumbnail))
         # assert os.stat(created_thumbnail).st_size < os.stat(original_filename).st_size, config
 
 
 def test_rasterize_svg():
-    import os
     name = 'pipe_organ'
     test_filename = 'tests/' + name + '.svg'
     assert os.path.isfile(test_filename)
