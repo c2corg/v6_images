@@ -45,6 +45,9 @@ class BaseStorage():
     def move(self, key, other_storage):
         raise NotImplementedError()
 
+    def last_modified(self, key):
+        raise NotImplementedError()
+
 
 class S3Storage(BaseStorage):
 
@@ -118,6 +121,9 @@ class S3Storage(BaseStorage):
         self.copy(key, other_storage)
         self.delete(key)
 
+    def last_modified(self, key):
+        return self.object(key).last_modified
+
 
 class LocalStorage(BaseStorage):
 
@@ -163,6 +169,9 @@ class LocalStorage(BaseStorage):
         elif isinstance(other_storage, S3Storage):
             other_storage.put(key, self.object_path(key))
             self.delete(key)
+
+    def last_modified(self, key):
+        return datetime.datetime.fromtimestamp(os.path.getmtime(self.object_path(key)))
 
 
 def getS3Params(prefix):

@@ -10,6 +10,7 @@ logging.basicConfig(level=logging.DEBUG, format="%(asctime)-15s %(levelname)5s %
 logging.getLogger("requests.packages.urllib3.connectionpool").setLevel(logging.WARN)
 
 data_folder = os.path.join(os.path.dirname(__file__), 'data')
+v5_key = '1475660224_882910455.jpg'
 
 
 class Composition(object):

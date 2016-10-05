@@ -37,3 +37,9 @@ Building and running with Docker
 -------------------------------
 
 `make run`
+
+
+Generate thumbnails after migration
+-----------------------------------
+
+``docker-compose exec images generate_thumbnails [-v]``
