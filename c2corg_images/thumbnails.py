@@ -44,3 +44,10 @@ def create_thumbnail(path: str, key: str, config: Dict[str, str]) -> str:
               config['geometry'])
     optimize(thumbnail_path)
     return tkey
+
+
+def create_thumbnails(path, key):
+    for config in THUMBNAIL_CONFIGS:
+        log.debug('%s - creating thumbnail %s', key, config['suffix'])
+        create_thumbnail(path, key, config)
+        log.debug('%s - creating thumbnail done %s', key, config['suffix'])

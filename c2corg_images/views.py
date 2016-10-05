@@ -9,9 +9,8 @@ from pyramid.httpexceptions import HTTPForbidden
 
 from wand.image import Image
 
-from c2corg_images import THUMBNAIL_CONFIGS
 from c2corg_images.convert import rasterize_svg
-from c2corg_images.thumbnails import create_thumbnail, thumbnail_keys
+from c2corg_images.thumbnails import create_thumbnails, thumbnail_keys
 from c2corg_images.storage import temp_storage, incoming_storage, active_storage
 
 import logging
@@ -90,19 +89,16 @@ def upload(request):
     original_key = "{}.{}".format(pre_key, kind)
     os.rename(raw_file, temp_storage.object_path(original_key))
 
-    # Create an optimized thumbnail
-    for config in THUMBNAIL_CONFIGS:
-        log.debug('%s - creating thumbnail %s', pre_key, config['suffix'])
-        thumbnail_key = create_thumbnail(temp_storage.path(), original_key, config)
-        log.debug('%s - creating thumbnail done %s', pre_key, config['suffix'])
-
-        log.debug('%s - uploading thumbnail %s', pre_key, config['suffix'])
-        temp_storage.move(thumbnail_key, incoming_storage)
-        log.debug('%s - uploading thumbnail done %s', pre_key, config['suffix'])
+    create_thumbnails(temp_storage.path(), original_key)
 
     log.debug('%s - uploading original file', pre_key)
     temp_storage.move(original_key, incoming_storage)
     log.debug('%s - uploading original file done', pre_key)
+
+    for key in thumbnail_keys(original_key):
+        log.debug('%s - uploading thumbnail %s', pre_key, key)
+        temp_storage.move(key, incoming_storage)
+        log.debug('%s - uploading thumbnail done %s', pre_key, key)
 
     log.debug('%s - returning response', pre_key)
     return {'filename': pre_key + '.' + kind}
