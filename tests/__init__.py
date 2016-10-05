@@ -9,7 +9,7 @@ LOG = logging.getLogger(__name__)
 logging.basicConfig(level=logging.DEBUG, format="%(asctime)-15s %(levelname)5s %(name)s %(message)s")
 logging.getLogger("requests.packages.urllib3.connectionpool").setLevel(logging.WARN)
 
-data_folder = os.path.dirname(__file__)
+data_folder = os.path.join(os.path.dirname(__file__), 'data')
 
 
 class Composition(object):

@@ -10,7 +10,7 @@ logging.getLogger('botocore').setLevel(logging.CRITICAL)
 logging.getLogger('s3transfer').setLevel(logging.CRITICAL)
 
 key = 'test.png'
-source_file = os.path.join(data_folder, 'piano.png')
+source_file = os.path.join(data_folder, 'images', 'piano.png')
 
 
 class BaseStorageTest(unittest.TestCase):

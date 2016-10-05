@@ -14,7 +14,7 @@ from tests import data_folder
     'violin.jpg', 'piano.png', 'music.gif'
 ])
 def test_create_thumbnail(filename):
-    test_filename = os.path.join(data_folder, filename)
+    test_filename = os.path.join(data_folder, 'images', filename)
     assert os.path.isfile(test_filename)
 
     # Copy test image to incoming directory
@@ -31,11 +31,11 @@ def test_create_thumbnail(filename):
 
 def test_rasterize_svg():
     name = 'pipe_organ'
-    test_filename = 'tests/' + name + '.svg'
-    assert os.path.isfile(test_filename)
+    svg_path = os.path.join(data_folder, 'images', "{}.svg".format(name))
+    assert os.path.isfile(svg_path)
 
-    target_filename = 'incoming/' + name + '.png'
-    rasterize_svg(test_filename, target_filename)
+    png_path = temp_storage.object_path("{}.png".format(name))
+    rasterize_svg(svg_path, png_path)
 
     # Check png exists
-    assert os.path.isfile(target_filename)
+    assert os.path.isfile(png_path)
