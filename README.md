@@ -18,13 +18,13 @@ The image is uploaded immediately to S3.
 The user receives the renamed filename.
 
 
-
 Activation
 ----------
 
 The user associates the filename to a document, which is stored in the API.
-At that time, a request is sent to S3 to move the thumbnails from the incoming bucket to the public bucket.
-This step ensures the image is associated with an authenticated user.
+At that time, a request is sent to image backend to move original and resized
+images from the incoming bucket to the public bucket. This step ensures the
+image is associated with an authenticated user.
 
 
 Cleaning
@@ -82,4 +82,4 @@ found:
 
 To regenerate the *resized* images:
 
-``docker-compose exec images generate_thumbnails [-v]``
+``docker-compose exec images resize_images [-v]``

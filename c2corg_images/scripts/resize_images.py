@@ -1,7 +1,7 @@
 import sys
 import argparse
 
-from c2corg_images.thumbnails import original_pattern, create_thumbnails, thumbnail_keys
+from c2corg_images.resizing import original_pattern, create_resized_images, resized_keys
 from c2corg_images.storage import temp_storage, active_storage
 
 import logging
@@ -24,10 +24,10 @@ def main(argv=sys.argv):
     if args['verbose']:
         log.setLevel(logging.DEBUG)
 
-    generate_thumbnails()
+    resize_images()
 
 
-def generate_thumbnails():
+def resize_images():
     for key in active_storage.keys():
         match = original_pattern.match(key)
         if match:
@@ -35,11 +35,11 @@ def generate_thumbnails():
             log.debug('{} getting file in temp storage'.format(key))
             active_storage.copy(key, temp_storage)
 
-            log.debug('{} creating thumbnails'.format(key))
-            create_thumbnails(temp_storage.path(), key)
+            log.debug('{} creating resized images'.format(key))
+            create_resized_images(temp_storage.path(), key)
 
             log.debug('{} uploading files to active storage'.format(key))
-            for thumbnail in thumbnail_keys(key):
-                temp_storage.move(thumbnail, active_storage)
+            for resized in resized_keys(key):
+                temp_storage.move(resized, active_storage)
 
             temp_storage.delete(key)

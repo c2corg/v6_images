@@ -6,7 +6,7 @@ setup(
     packages=find_packages(),
     entry_points="""\
       [console_scripts]
-      generate_thumbnails = c2corg_images.scripts.generate_thumbnails:main
+      resize_images = c2corg_images.scripts.resize_images:main
       migrate = c2corg_images.scripts.migrate:main
       """
 )

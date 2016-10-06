@@ -2,9 +2,9 @@ import os
 import pytest
 import shutil
 
-from c2corg_images import THUMBNAIL_CONFIGS
+from c2corg_images import RESIZING_CONFIG
 from c2corg_images.convert import rasterize_svg
-from c2corg_images.thumbnails import create_thumbnail
+from c2corg_images.resizing import create_resized_image
 from c2corg_images.storage import temp_storage
 
 from tests import data_folder
@@ -13,7 +13,7 @@ from tests import data_folder
 @pytest.mark.parametrize("filename", [
     'violin.jpg', 'piano.png', 'music.gif'
 ])
-def test_create_thumbnail(filename):
+def test_create_resized_image(filename):
     test_filename = os.path.join(data_folder, 'images', filename)
     assert os.path.isfile(test_filename)
 
@@ -22,11 +22,11 @@ def test_create_thumbnail(filename):
     shutil.copyfile(test_filename, original_filename)
     assert os.path.isfile(original_filename)
 
-    # Create thumbnails
-    for config in THUMBNAIL_CONFIGS:
-        thumbnail = create_thumbnail(temp_storage.path(), filename, config)
-        assert os.path.isfile(temp_storage.object_path(thumbnail))
-        # assert os.stat(created_thumbnail).st_size < os.stat(original_filename).st_size, config
+    # Create resized image
+    for config in RESIZING_CONFIG:
+        resized = create_resized_image(temp_storage.path(), filename, config)
+        assert os.path.isfile(temp_storage.object_path(resized))
+        # assert os.stat(created_resized_images).st_size < os.stat(original_filename).st_size, config
 
 
 def test_rasterize_svg():

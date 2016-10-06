@@ -6,7 +6,7 @@ import os
 # See http://docs.wand-py.org/en/0.4.1/guide/resizecrop.html
 # Max 800, keep aspect ratio
 # Max 120x120 don't keep ratio
-THUMBNAIL_CONFIGS = [
+RESIZING_CONFIG = [
     {'suffix': 'BI', 'geometry': '800x800>'},
     {'suffix': 'MI', 'geometry': '250x250>'},
     {'suffix': 'SI', 'geometry': '120x120!'}
