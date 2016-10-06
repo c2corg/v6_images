@@ -1,4 +1,6 @@
+import os
 import pytest
+from tests import data_folder
 
 
 def test_service_is_up(connection):
@@ -14,13 +16,12 @@ def upload_image(connection, filename, expected_status=200):
 
 
 @pytest.mark.parametrize("filename", [
-    'tests/music.tiff'
+    'music.tiff'
 ])
 def test_upload_unsupported_image(connection, filename):
-    import os
-    assert os.path.isfile(filename)
-
-    upload_image(connection, filename, expected_status=400)
+    path = os.path.join(data_folder, 'images', filename)
+    assert os.path.isfile(path)
+    upload_image(connection, path, expected_status=400)
 
 
 def test_publish_bad_secret(connection):
@@ -30,6 +31,9 @@ def test_publish_bad_secret(connection):
 
 
 def test_publish_good_secret(connection):
+    path = os.path.join(data_folder, 'images', 'violin.jpg')
+    body = upload_image(connection, path, expected_status=200)
+    filename = body['filename']
     connection.post('/publish',
-                    data={'secret': 'good_secret', 'filename': 'test.png'},
+                    data={'secret': 'good_secret', 'filename': filename},
                     expected_status=200)

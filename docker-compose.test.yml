@@ -1,9 +1,0 @@
-wsgi:
-  extends:
-    file: docker-compose.yml
-    service: wsgi
-  environment:
-    STORAGE_BACKEND: local
-    INCOMING_FOLDER: /var/www/incoming
-    ACTIVE_FOLDER: /var/www/active
-    API_SECRET_KEY: good_secret

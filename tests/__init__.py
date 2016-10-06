@@ -4,15 +4,17 @@ import requests
 import subprocess
 import time
 
-
 BASE_WSGI_URL = 'http://localhost:8480/'
 LOG = logging.getLogger(__name__)
 logging.basicConfig(level=logging.DEBUG, format="%(asctime)-15s %(levelname)5s %(name)s %(message)s")
 logging.getLogger("requests.packages.urllib3.connectionpool").setLevel(logging.WARN)
 
+data_folder = os.path.join(os.path.dirname(__file__), 'data')
+v5_key = '1475660224_882910455.jpg'
+
 
 class Composition(object):
-    def __init__(self, request, composition="docker-compose.test.yml"):
+    def __init__(self, request, composition="docker-compose.yml"):
         self.composition = composition
         if os.environ.get("docker_stop", "1") == "1":
             request.addfinalizer(self.stop_all)

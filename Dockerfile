@@ -35,8 +35,8 @@ RUN pip3 install -r requirements_pip.txt && \
 COPY scripts scripts
 COPY tests tests
 
-RUN mkdir -p /var/www/incoming /var/www/active && \
-    chown www-data:www-data /var/www/incoming /var/www/active
+RUN mkdir -p /var/www/incoming /var/www/active /var/www/temp && \
+    chown www-data:www-data /var/www/incoming /var/www/active /var/www/temp
 
 EXPOSE 8080
 USER www-data
