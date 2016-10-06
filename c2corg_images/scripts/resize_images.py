@@ -16,6 +16,9 @@ log.addHandler(ch)
 def main(argv=sys.argv):
     parser = argparse.ArgumentParser()
     parser.add_argument(
+        '-f', '--filename', dest='filename',
+        help='Original file to resize.')
+    parser.add_argument(
         '-v', '--verbose', dest='verbose',
         action='store_const', const=True, default=False,
         help='Increase verbosity')
@@ -24,6 +27,10 @@ def main(argv=sys.argv):
     if args['verbose']:
         log.setLevel(logging.DEBUG)
 
+    if args['filename']:
+        resize_image(args['filename'])
+        return
+
     resize_images()
 
 
@@ -31,15 +38,18 @@ def resize_images():
     for key in active_storage.keys():
         match = original_pattern.match(key)
         if match:
+            resize_image(key)
 
-            log.debug('{} getting file in temp storage'.format(key))
-            active_storage.copy(key, temp_storage)
 
-            log.debug('{} creating resized images'.format(key))
-            create_resized_images(temp_storage.path(), key)
+def resize_image(key):
+    log.debug('{} getting file in temp storage'.format(key))
+    active_storage.copy(key, temp_storage)
 
-            log.debug('{} uploading files to active storage'.format(key))
-            for resized in resized_keys(key):
-                temp_storage.move(resized, active_storage)
+    log.debug('{} creating resized images'.format(key))
+    create_resized_images(temp_storage.path(), key)
 
-            temp_storage.delete(key)
+    log.debug('{} uploading files to active storage'.format(key))
+    for resized in resized_keys(key):
+        temp_storage.move(resized, active_storage)
+
+    temp_storage.delete(key)
