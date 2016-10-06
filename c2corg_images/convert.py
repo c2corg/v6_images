@@ -1,4 +1,3 @@
-import os
 import subprocess
 from typing import List
 
@@ -14,10 +13,4 @@ def rasterize_svg(svgfile: str, pngfile: str):
 
 def transform(original_file: str, target_file: str, options: List[str]):
     cmd = ['convert', original_file] + options + [target_file]
-    subprocess.check_call(cmd)
-
-
-def optimize(filename: str):
-    base, ext = os.path.splitext(filename)
-    cmd = ['scripts/optimize{}.sh'.format(ext), filename]
     subprocess.check_call(cmd)

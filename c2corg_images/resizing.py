@@ -2,7 +2,7 @@ import os
 import re
 from typing import Dict
 from c2corg_images import RESIZING_CONFIG
-from c2corg_images.convert import transform, optimize
+from c2corg_images.convert import transform
 
 import logging
 log = logging.getLogger(__name__)
@@ -42,7 +42,6 @@ def create_resized_image(path: str, original: str, config: Dict) -> str:
     transform(original_path,
               resized_path,
               config['convert'])
-    optimize(resized_path)
     return resized
 
 
