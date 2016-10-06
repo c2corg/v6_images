@@ -34,14 +34,14 @@ def original_key(resized):
             return "{}.{}".format(match.groups)
 
 
-def create_resized_image(path: str, original: str, config: Dict[str, str]) -> str:
+def create_resized_image(path: str, original: str, config: Dict) -> str:
     original_path = os.path.join(path, original)
     resized = resized_key(original, config)
     resized_path = os.path.join(path, resized)
     log.info('Creating resized image %s', resized_path)
     transform(original_path,
               resized_path,
-              config['geometry'])
+              config['convert'])
     optimize(resized_path)
     return resized
 
