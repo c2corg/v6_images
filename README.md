@@ -42,7 +42,7 @@ Building and running with Docker
 Launch images migration from V5 to V6
 -------------------------------------
 
-Migration take source images from v5 S3 read-only bucket, which could be
+Migration takes source images from v5 S3 read-only bucket, which could be
 defined by environment variables, example:
 
 ```
@@ -56,10 +56,11 @@ EXO_SECRET_KEY: ...
 Note that here, ``PREFIX`` point out the keys to use as we can have multiple
 endpoints (AWS, Exoscale) with different keys.
 
-The migration script iterate through v5 images. For each *original* image found:
-* If the image already exists on publication bucket, nothing is done (only
+The migration script iterates through v5 images. For each *original* image
+found:
+* If the image already exists in publication bucket, nothing is done (only
   migrate the new ones).
-* If the image do not exists on the v6 bucket:
+* If the image does not exists in the v6 bucket:
    * the *original* image is copied locally,
    * *resized* images are produced according to configuration,
    * *original* and *resized* images are pushed on publication bucket.
@@ -74,11 +75,11 @@ Generate *resized* images after migration
 
 This can be used to change the size or quality of *resized* images.
 
-This script iterate through *published* images. For each *original* image
+This script iterates through *published* images. For each *original* image
 found:
 * the *original* image is copied locally,
 * *resized* images are produced according to configuration,
-* *resized* images are pushed on publication bucket, overwriting old ones.
+* *resized* images are pushed in publication bucket, overwriting old ones.
 
 To regenerate the *resized* images:
 
