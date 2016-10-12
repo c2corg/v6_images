@@ -2,7 +2,7 @@ import os
 import re
 from typing import Dict
 from c2corg_images import RESIZING_CONFIG
-from c2corg_images.convert import transform, optimize
+from c2corg_images.convert import transform
 
 import logging
 log = logging.getLogger(__name__)
@@ -34,15 +34,14 @@ def original_key(resized):
             return "{}.{}".format(match.groups)
 
 
-def create_resized_image(path: str, original: str, config: Dict[str, str]) -> str:
+def create_resized_image(path: str, original: str, config: Dict) -> str:
     original_path = os.path.join(path, original)
     resized = resized_key(original, config)
     resized_path = os.path.join(path, resized)
     log.info('Creating resized image %s', resized_path)
     transform(original_path,
               resized_path,
-              config['geometry'])
-    optimize(resized_path)
+              config['convert'])
     return resized
 
 

@@ -3,13 +3,15 @@ from pyramid.renderers import JSON
 from pyramid.events import NewRequest
 import os
 
-# See http://docs.wand-py.org/en/0.4.1/guide/resizecrop.html
-# Max 800, keep aspect ratio
-# Max 120x120 don't keep ratio
 RESIZING_CONFIG = [
-    {'suffix': 'BI', 'geometry': '800x800>'},
-    {'suffix': 'MI', 'geometry': '250x250>'},
-    {'suffix': 'SI', 'geometry': '120x120!'}
+    {'suffix': 'BI', 'convert': ['-resize', '800x800>',
+                                 '-quality', '90']},
+    {'suffix': 'MI', 'convert': ['-resize', '250x250>',
+                                 '-quality', '90']},
+    {'suffix': 'SI', 'convert': ['-resize', '150x150^',
+                                 '-gravity', 'center',
+                                 '-extent', '150x150',
+                                 '-quality', '90']}
 ]
 
 
