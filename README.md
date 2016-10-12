@@ -67,7 +67,9 @@ found:
 
 To run the migration script:
 
-``docker-compose exec images migrate [-v]``
+``docker-compose exec images migrate``
+
+``docker-compose exec images migrate --help`` to get options list.
 
 
 Generate *resized* images after migration
@@ -83,4 +85,6 @@ found:
 
 To regenerate the *resized* images:
 
-``docker-compose exec images resize_images [-v]``
+``docker-compose exec images resize``
+
+``docker-compose exec images resize --help`` to get options list.
