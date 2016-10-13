@@ -9,7 +9,6 @@ from pyramid.httpexceptions import HTTPForbidden
 
 from wand.image import Image
 
-from c2corg_images.convert import rasterize_svg
 from c2corg_images.resizing import create_resized_images, resized_keys
 from c2corg_images.storage import temp_storage, incoming_storage, active_storage
 
@@ -69,18 +68,8 @@ def upload(request):
 
     if kind == 'JPEG':
         kind = 'jpg'
-    elif kind == 'PNG' or kind == 'GIF':
+    elif kind in ('PNG', 'GIF', 'SVG'):
         kind = kind.lower()
-    elif kind == 'SVG':
-        # Save the original SVG file and
-        # FIXME: why do we need to rasterize?
-        # Quality: we should rasterize directly from SVG to resized images
-        original_svg_file = temp_storage.object_path("%s.svg".format(pre_key))
-        os.rename(raw_file, original_svg_file)
-        log.debug('%s - rasterizing SVG', pre_key)
-        rasterize_svg(original_svg_file, raw_file)
-        log.debug('%s - rasterizing SVG - done', pre_key)
-        kind = 'png'
     else:
         request.response.status_code = 400
         return {'error': 'Unsupported image format %s' % kind}
