@@ -6,7 +6,7 @@ setup(
     packages=find_packages(),
     entry_points="""\
       [console_scripts]
-      resize_images = c2corg_images.scripts.resize_images:main
-      migrate = c2corg_images.scripts.migrate:main
+      resize = c2corg_images.scripts.resize:Resizer.run
+      migrate = c2corg_images.scripts.migrate:Migrator.run
       """
 )
