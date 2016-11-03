@@ -16,8 +16,10 @@ RUN apt-get update \
     optipng \
     librsvg2-bin \
     python3-pip \
- && apt-get clean \
- && rm -rf /var/lib/apt/lists/*
+    libpq5 \
+    libpq-dev \
+    python3-dev \
+    gcc
 
 WORKDIR /var/www/
 
@@ -31,6 +33,15 @@ RUN pip3 install -r requirements_pip.txt && \
     pip  install . && \
     py3compile -f . && \
     rm -fr .cache
+
+RUN rm -fr .cache \
+ && apt-get -y purge \
+    python3-dev \
+    libpq-dev \
+    gcc \
+ && apt-get -y --purge autoremove \
+ && apt-get clean \
+ && rm -rf /var/lib/apt/lists/*
 
 COPY scripts scripts
 COPY tests tests

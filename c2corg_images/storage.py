@@ -194,15 +194,12 @@ def getS3Params(prefix):
 
 incoming_storage = None  # type: BaseStorage
 active_storage = None  # type: BaseStorage
-v5_storage = None  # type: BaseStorage
 if os.environ['STORAGE_BACKEND'] == 's3':
     incoming_storage = S3Storage(os.environ['INCOMING_BUCKET'], getS3Params('INCOMING'))
     active_storage = S3Storage(os.environ['ACTIVE_BUCKET'], getS3Params('ACTIVE'))
-    v5_storage = S3Storage(os.environ['V5_BUCKET'], getS3Params('V5'))
 elif os.environ['STORAGE_BACKEND'] == 'local':
     incoming_storage = LocalStorage(os.environ['INCOMING_FOLDER'])
     active_storage = LocalStorage(os.environ['ACTIVE_FOLDER'])
-    v5_storage = LocalStorage(os.environ['V5_FOLDER'])
 else:
     raise Exception('STORAGE_BACKEND not supported or missing')
 

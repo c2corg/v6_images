@@ -42,19 +42,12 @@ Building and running with Docker
 Launch images migration from V5 to V6
 -------------------------------------
 
-Migration takes source images from v5 S3 read-only bucket, which could be
-defined by environment variables, example:
+The migration retrieves a list of images from the v5 database. The connection
+to the database can be defined as environment variable, for example:
 
 ```
-V5_BUCKET=c2corg_images_master
-V5_ENDPOINT=https://sos.exo.io
-V5_PREFIX: EXO
-EXO_ACCESS_KEY_ID: ...
-EXO_SECRET_KEY: ...
+V5_DATABASE_URL: postgresql://www-data:www-data@postgres/c2corg
 ```
-
-Note that here, ``PREFIX`` point out the keys to use as we can have multiple
-endpoints (AWS, Exoscale) with different keys.
 
 The migration script iterates through v5 images. For each *original* image
 found:
