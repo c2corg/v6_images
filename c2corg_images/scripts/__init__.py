@@ -127,9 +127,12 @@ class MultithreadProcessor():
             with self.lock:
                 self.errors += 1
         progress = self.skipped + self.processed + self.errors
-        if progress % 1000 == 0:
-            log.info('Progress: {} / {} ({:.2%})'.
-                     format(progress, self.total, progress / self.total))
+        if progress % 10 == 0:
+            log.info('Progress: {} / {} ({:.2%}), elapsed time: {}'.
+                     format(progress,
+                            self.total,
+                            progress / self.total,
+                            datetime.datetime.now() - self.start))
 
     def do_process_key(self):
         raise NotImplementedError()

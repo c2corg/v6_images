@@ -25,9 +25,7 @@ class Migrator(MultithreadProcessor):
 SELECT count(*) AS count
 FROM app_images_archives;
 """
-        count_result = connection.execute(sql)
-        for row in count_result:
-            total = row['count']
+        total = connection.execute(sql)[0]['count']
 
         while offset < total:
             sql = """
@@ -35,7 +33,6 @@ SELECT filename
 FROM app_images_archives
 LIMIT {} OFFSET {};
 """.format(batch_size, offset)
-
             result = connection.execute(sql)
             for row in result:
                 yield row['filename']
@@ -44,26 +41,48 @@ LIMIT {} OFFSET {};
         connection.close()
 
     def do_process_key(self, key):
-        if not self.force and active_storage.exists(key):
-            with self.lock:
-                self.skipped += 1
-            return
+        to_create = [key] + resized_keys(key)
+        if not self.force:
+            for key_to_create in list(to_create):
+                if active_storage.exists(key_to_create):
+                    to_create.remove(key_to_create)
+            if len(to_create) == 0:
+                log.debug('{} skipping'.format(key))
+                with self.lock:
+                    self.skipped += 1
+                    return
 
         log.debug('{} getting file in temp storage'.format(key))
-        r = requests.get('http://s.camptocamp.org/uploads/images/{}'.
-                         format(key),
-                         stream=True)
-        with open(temp_storage.object_path(key), 'wb') as fd:
-            for chunk in r.iter_content(None):
-                fd.write(chunk)
+        tries = 3
+        success = False
+        while tries > 0 and not success:
+            try:
+                r = requests.get('http://s.camptocamp.org/uploads/images/{}'.
+                                 format(key),
+                                 stream=True,
+                                 timeout=120)
+                with open(temp_storage.object_path(key), 'wb') as fd:
+                    for chunk in r.iter_content(None):
+                        fd.write(chunk)
+                success = True
+            except Exception as e:
+                tries -= 1
+                if tries > 0:
+                    log.warning("{} retry download".format(key))
+                else:
+                    raise e
 
         log.debug('{} creating resized images'.format(key))
         create_resized_images(temp_storage.path(), key)
 
         log.debug('{} uploading files to active storage'.format(key))
-        temp_storage.move(key, active_storage)
+        if key in to_create:
+            log.debug('{} uploading {}'.format(key, key))
+            temp_storage.move(key, active_storage)
         for resized in resized_keys(key):
-            temp_storage.move(resized, active_storage)
+            if resized in to_create:
+                log.debug('{} uploading {}'.format(key, resized))
+                temp_storage.move(resized, active_storage)
 
         with self.lock:
             self.processed += 1
