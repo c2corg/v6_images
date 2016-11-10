@@ -182,16 +182,12 @@ class LocalStorage(BaseStorage):
 
 def getS3Params(prefix):
     params = {}
-
-    ENDPOINT = os.environ.get("{}_ENDPOINT".format(prefix), False)
-    if ENDPOINT:
-        params['endpoint_url'] = ENDPOINT
+    PREFIX = os.environ.get("{}_PREFIX".format(prefix), False)
+    if PREFIX:
+        params['endpoint_url'] = os.environ.get("{}_ENDPOINT".format(PREFIX), False)
         params['config'] = botocore.config.Config(
             signature_version='s3'
         )
-
-    PREFIX = os.environ.get("{}_PREFIX".format(prefix), False)
-    if PREFIX:
         params['aws_access_key_id'] = os.environ.get("{}_ACCESS_KEY_ID".format(PREFIX))
         params['aws_secret_access_key'] = os.environ.get("{}_SECRET_KEY".format(PREFIX))
 
