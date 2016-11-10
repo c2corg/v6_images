@@ -25,7 +25,7 @@ class Migrator(MultithreadProcessor):
 SELECT count(*) AS count
 FROM app_images_archives;
 """
-        total = connection.execute(sql)[0]['count']
+        total = connection.execute(sql).fetchone()['count']
 
         while offset < total:
             sql = """

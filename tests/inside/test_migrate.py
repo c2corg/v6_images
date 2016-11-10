@@ -14,10 +14,14 @@ key2 = '1437738073_375759438.jpg'
             return_value=Mock(
                 execute=Mock(
                     side_effect=[
-                        [{'count': 2}],
+                        Mock(
+                            fetchone=Mock(
+                                return_value={'count': 2})),
                         [{'filename': key1},
                          {'filename': key2}],
-                        [{'count': 2}],
+                        Mock(
+                            fetchone=Mock(
+                                return_value={'count': 2})),
                         [{'filename': key1},
                          {'filename': key2}]])))))
 def test_migrate(create_engine):
