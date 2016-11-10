@@ -31,8 +31,9 @@ FROM app_images_archives;
             sql = """
 SELECT filename
 FROM app_images_archives
+ORDER BY id {}
 LIMIT {} OFFSET {};
-""".format(batch_size, offset)
+""".format(os.environ.get('V5_ORDER', 'ASC'), batch_size, offset)
             result = connection.execute(sql)
             for row in result:
                 yield row['filename']
