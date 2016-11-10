@@ -4,13 +4,13 @@ from pyramid.events import NewRequest
 import os
 
 RESIZING_CONFIG = [
-    {'suffix': 'BI', 'convert': ['-resize', '800x800>',
+    {'suffix': 'BI', 'convert': ['-resize', '1500x1500>',
                                  '-quality', '90']},
-    {'suffix': 'MI', 'convert': ['-resize', '250x250>',
+    {'suffix': 'MI', 'convert': ['-resize', '400x400>',
                                  '-quality', '90']},
-    {'suffix': 'SI', 'convert': ['-resize', '150x150^',
+    {'suffix': 'SI', 'convert': ['-resize', '200x200^',
                                  '-gravity', 'center',
-                                 '-extent', '150x150',
+                                 '-extent', '200x200',
                                  '-quality', '90']}
 ]
 

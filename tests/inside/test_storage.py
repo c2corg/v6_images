@@ -1,6 +1,6 @@
 import os
 import unittest
-from c2corg_images.storage import S3Storage, LocalStorage, temp_storage, v5_storage
+from c2corg_images.storage import S3Storage, LocalStorage, temp_storage
 
 from tests import utils, data_folder
 
@@ -79,14 +79,3 @@ class LocalStorageTest(BaseStorageTest):
 
     def test_resizing_protocol(self):
         super(LocalStorageTest, self).resizing_protocol()
-
-
-def test_migrate_protocol():
-    # get file from v5 storage to temp storage
-    for key in v5_storage.keys():
-        v5_storage.copy(key, temp_storage)
-        assert temp_storage.exists(key)
-
-        # cleaning
-        temp_storage.delete(key)
-        assert not temp_storage.exists(key)

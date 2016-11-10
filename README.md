@@ -26,6 +26,64 @@ At that time, a request is sent to image backend to move original and resized
 images from the incoming bucket to the public bucket. This step ensures the
 image is associated with an authenticated user.
 
+Configuration
+-------------
+
+Configuration should be set by environment variables:
+
+``STORAGE_BACKEND``: (required) ``s3`` or ``local``
+
+* ``s3``: requires ``INCOMING_FOLDER`` and ``ACTIVE_FOLDER``, should be used in
+  production.
+* ``local``: requires ``INCOMING_BUCKET`` and ``ACTIVE_BUCKET``, should be used
+  for tests and developement.
+
+``TEMP_FOLDER``: (required) Local folder to store images temporarily.
+
+``INCOMING_FOLDER``: Local folder for incoming files.
+
+``ACTIVE_FOLDER``: Local folder for active files.
+
+``INCOMING_BUCKET``: Name bucket for incoming files.
+
+``INCOMING_PREFIX``: Prefix of the incoming bucket connection options.
+
+``ACTIVE_BUCKET``: Name bucket for active files.
+
+``ACTIVE_PREFIX``: Prefix of the active bucket connection options.
+
+*PREFIX_*``ENDPOINT``: Endpoint url for corresponding prefix.
+
+*PREFIX_*``ACCESS_KEY_ID``: API key for corresponding prefix.
+
+*PREFIX_*``SECRET_KEY``: Secret key for corresponding prefix.
+
+``API_SECRET_KEY``: API secret key, needed to publish images on the active
+bucket.
+
+``V5_DATABASE_URL``: Address of the V5 database for the migration script.
+
+Here is an example configuration with S3 backend on exoscale:
+
+```
+STORAGE_BACKEND: s3
+
+TEMP_FOLDER: /srv/images/temp
+INCOMING_FOLDER:
+ACTIVE_FOLDER:
+
+INCOMING_BUCKET: c2corg_demov6_incoming
+INCOMING_PREFIX: EXO
+ACTIVE_BUCKET: c2corg_demov6_active
+ACTIVE_PREFIX: EXO
+EXO_ENDPOINT: https://sos.exo.io
+EXO_ACCESS_KEY_ID: xxx
+EXO_SECRET_KEY: xxx
+
+API_SECRET_KEY: xxx
+
+V5_DATABASE_URL: postgresql://www-data:www-data@postgres/c2corg
+```
 
 Cleaning
 --------
@@ -42,19 +100,12 @@ Building and running with Docker
 Launch images migration from V5 to V6
 -------------------------------------
 
-Migration takes source images from v5 S3 read-only bucket, which could be
-defined by environment variables, example:
+The migration retrieves a list of images from the v5 database. The connection
+to the database can be defined as environment variable, for example:
 
 ```
-V5_BUCKET=c2corg_images_master
-V5_ENDPOINT=https://sos.exo.io
-V5_PREFIX: EXO
-EXO_ACCESS_KEY_ID: ...
-EXO_SECRET_KEY: ...
+V5_DATABASE_URL: postgresql://www-data:www-data@postgres/c2corg
 ```
-
-Note that here, ``PREFIX`` point out the keys to use as we can have multiple
-endpoints (AWS, Exoscale) with different keys.
 
 The migration script iterates through v5 images. For each *original* image
 found:

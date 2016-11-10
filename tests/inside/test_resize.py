@@ -1,15 +1,24 @@
 from c2corg_images.resizing import resized_keys
-from c2corg_images.storage import v5_storage, active_storage
+from c2corg_images.storage import active_storage
 from c2corg_images.scripts.resize import Resizer
 
-from tests import v5_key
+import os
+import shutil
+from tests import data_folder, v5_key
 
 
 def test_resize():
+    # clear active storage
+    for key in active_storage.keys():
+        active_storage.delete(key)
+
+    # put some file in active storage
     key = v5_key
-    v5_storage.copy(key, active_storage)
+    shutil.copyfile(os.path.join(data_folder, 'v5_images', v5_key),
+                    active_storage.object_path(v5_key))
     for resized in resized_keys(key):
-        v5_storage.copy(resized, active_storage)
+        shutil.copyfile(os.path.join(data_folder, 'v5_images', resized),
+                        active_storage.object_path(resized))
 
     mtimes = {}
     for resized in resized_keys(key):

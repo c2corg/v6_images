@@ -16,6 +16,12 @@ PAGE_SIZE = 1000
 thread_data = threading.local()
 
 
+def session():
+    if not hasattr(thread_data, 'session'):
+        thread_data.session = boto3.session.Session()
+    return thread_data.session
+
+
 def resources():
     if not hasattr(thread_data, 'resources'):
         thread_data.resources = {}
@@ -51,17 +57,18 @@ class BaseStorage():
 
 class S3Storage(BaseStorage):
 
-    def __init__(self, bucket_name, params={}):
+    def __init__(self, bucket_name, params={}, default_acl=None):
         self._bucket_name = bucket_name
         self._params = params
         self._endpoint_url = self._params.get('endpoint_url', None)
+        self.default_acl = default_acl
 
     def resource(self):
         if self._endpoint_url not in resources():
             if self._endpoint_url is None:
-                resource = boto3.resource('s3')
+                resource = session().resource('s3')
             else:
-                resource = boto3.resource(
+                resource = session().resource(
                     service_name='s3',
                     **self._params)
                 resource.meta.client.meta.events.unregister('before-sign.s3',
@@ -97,11 +104,10 @@ class S3Storage(BaseStorage):
         self.object(key).download_file(path)
 
     def put(self, key, path):
-        now = datetime.datetime.now()
-        expires = now + datetime.timedelta(hours=EXPIRE_HOURS)
         self.bucket().upload_file(Filename=path,
-                                  Key=key,
-                                  ExtraArgs={'Expires': expires})
+                                  Key=key)
+        if self.default_acl is not None:
+            self.object(key).Acl().put(ACL=self.default_acl)
 
     def delete(self, key):
         self.object(key).delete()
@@ -176,16 +182,12 @@ class LocalStorage(BaseStorage):
 
 def getS3Params(prefix):
     params = {}
-
-    ENDPOINT = os.environ.get("{}_ENDPOINT".format(prefix), False)
-    if ENDPOINT:
-        params['endpoint_url'] = ENDPOINT
+    PREFIX = os.environ.get("{}_PREFIX".format(prefix), False)
+    if PREFIX:
+        params['endpoint_url'] = os.environ.get("{}_ENDPOINT".format(PREFIX), False)
         params['config'] = botocore.config.Config(
             signature_version='s3'
         )
-
-    PREFIX = os.environ.get("{}_PREFIX".format(prefix), False)
-    if PREFIX:
         params['aws_access_key_id'] = os.environ.get("{}_ACCESS_KEY_ID".format(PREFIX))
         params['aws_secret_access_key'] = os.environ.get("{}_SECRET_KEY".format(PREFIX))
 
@@ -194,15 +196,12 @@ def getS3Params(prefix):
 
 incoming_storage = None  # type: BaseStorage
 active_storage = None  # type: BaseStorage
-v5_storage = None  # type: BaseStorage
 if os.environ['STORAGE_BACKEND'] == 's3':
     incoming_storage = S3Storage(os.environ['INCOMING_BUCKET'], getS3Params('INCOMING'))
-    active_storage = S3Storage(os.environ['ACTIVE_BUCKET'], getS3Params('ACTIVE'))
-    v5_storage = S3Storage(os.environ['V5_BUCKET'], getS3Params('V5'))
+    active_storage = S3Storage(os.environ['ACTIVE_BUCKET'], getS3Params('ACTIVE'), default_acl='public-read')
 elif os.environ['STORAGE_BACKEND'] == 'local':
     incoming_storage = LocalStorage(os.environ['INCOMING_FOLDER'])
     active_storage = LocalStorage(os.environ['ACTIVE_FOLDER'])
-    v5_storage = LocalStorage(os.environ['V5_FOLDER'])
 else:
     raise Exception('STORAGE_BACKEND not supported or missing')
 
