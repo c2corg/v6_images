@@ -114,9 +114,12 @@ class S3Storage(BaseStorage):
 
     def copy(self, key, other_storage):
         if isinstance(other_storage, S3Storage):
-            other_storage.object(key).copy_from(CopySource={
-                'Bucket': self._bucket_name,
-                'Key': key})
+            new_object = other_storage.object(key)
+            new_object.copy_from(
+                CopySource={
+                    'Bucket': self._bucket_name,
+                    'Key': key})
+            new_object.Acl().put(ACL=other_storage.default_acl or 'private')
         elif isinstance(other_storage, LocalStorage):
             path = os.path.join(other_storage.path(), key)
             self.get(key, path)
@@ -197,8 +200,12 @@ def getS3Params(prefix):
 incoming_storage = None  # type: BaseStorage
 active_storage = None  # type: BaseStorage
 if os.environ['STORAGE_BACKEND'] == 's3':
-    incoming_storage = S3Storage(os.environ['INCOMING_BUCKET'], getS3Params('INCOMING'))
-    active_storage = S3Storage(os.environ['ACTIVE_BUCKET'], getS3Params('ACTIVE'), default_acl='public-read')
+    incoming_storage = S3Storage(os.environ['INCOMING_BUCKET'],
+                                 getS3Params('INCOMING'),
+                                 default_acl='private')
+    active_storage = S3Storage(os.environ['ACTIVE_BUCKET'],
+                               getS3Params('ACTIVE'),
+                               default_acl='public-read')
 elif os.environ['STORAGE_BACKEND'] == 'local':
     incoming_storage = LocalStorage(os.environ['INCOMING_FOLDER'])
     active_storage = LocalStorage(os.environ['ACTIVE_FOLDER'])

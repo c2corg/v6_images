@@ -1,6 +1,8 @@
 import os
 import unittest
-from c2corg_images.storage import S3Storage, LocalStorage, temp_storage
+import requests
+from c2corg_images.storage import (
+    S3Storage, LocalStorage, temp_storage, getS3Params)
 
 from tests import utils, data_folder
 
@@ -24,10 +26,26 @@ class BaseStorageTest(unittest.TestCase):
         assert self.incoming_storage.exists(key)
         assert not temp_storage.exists(key)
 
+        # Ensure the file is private
+        if isinstance(self.incoming_storage, S3Storage):
+            url = '{}/{}/{}'.format(self.incoming_storage._endpoint_url,
+                                    self.incoming_storage._bucket_name,
+                                    key)
+            r = requests.get(url, stream=True, timeout=120)
+            assert r.status_code == 403
+
         # on publishing it is moved to active storage
         self.incoming_storage.move(key, self.active_storage)
         assert self.active_storage.exists(key)
         assert not self.incoming_storage.exists(key)
+
+        # Ensure the file is public
+        if isinstance(self.active_storage, S3Storage):
+            url = '{}/{}/{}'.format(self.active_storage._endpoint_url,
+                                    self.active_storage._bucket_name,
+                                    key)
+            r = requests.get(url, stream=True, timeout=120)
+            assert r.status_code == 200
 
         # cleaning
         self.active_storage.delete(key)
@@ -56,8 +74,12 @@ class BaseStorageTest(unittest.TestCase):
 class S3StorageTest(BaseStorageTest):
 
     def setUp(self):  # NOQA
-        self.incoming_storage = S3Storage(os.environ['INCOMING_BUCKET'])
-        self.active_storage = S3Storage(os.environ['ACTIVE_BUCKET'])
+        self.incoming_storage = S3Storage(os.environ['INCOMING_BUCKET'],
+                                          getS3Params('INCOMING'),
+                                          default_acl='private')
+        self.active_storage = S3Storage(os.environ['ACTIVE_BUCKET'],
+                                        getS3Params('ACTIVE'),
+                                        default_acl='public-read')
 
     @utils.skipIfTravis
     def test_standard_protocol(self):
