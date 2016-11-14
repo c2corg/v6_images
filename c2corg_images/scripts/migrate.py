@@ -66,7 +66,7 @@ LIMIT {} OFFSET {};
                     log.error("{} return status code {} - {}".
                               format(key, r.status_code, r.reason))
                     with self.lock:
-                        self.errors +=1
+                        self.errors += 1
                     return
                 with open(temp_storage.object_path(key), 'wb') as fd:
                     for chunk in r.iter_content(None):
@@ -83,13 +83,13 @@ LIMIT {} OFFSET {};
         create_resized_images(temp_storage.path(), key)
 
         log.debug('{} uploading files to active storage'.format(key))
-        if key in to_create:
-            log.debug('{} uploading {}'.format(key, key))
-            temp_storage.move(key, active_storage)
-        for resized in resized_keys(key):
-            if resized in to_create:
-                log.debug('{} uploading {}'.format(key, resized))
-                temp_storage.move(resized, active_storage)
+        for key_to_create in to_create:
+            if temp_storage.exists(key_to_create):
+                log.debug('{} uploading {}'.format(key, key_to_create))
+                temp_storage.move(key_to_create, active_storage)
+            else:
+                log.warning('{} File does not exists, skipping upload of {}'.
+                            format(key, key_to_create))
 
         with self.lock:
             self.processed += 1
