@@ -62,6 +62,12 @@ LIMIT {} OFFSET {};
                                  format(key),
                                  stream=True,
                                  timeout=120)
+                if r.status_code != 200:
+                    log.error("{} return status code {} - {}".
+                              format(key, r.status_code, r.reason))
+                    with self.lock:
+                        self.errors +=1
+                    return
                 with open(temp_storage.object_path(key), 'wb') as fd:
                     for chunk in r.iter_content(None):
                         fd.write(chunk)
