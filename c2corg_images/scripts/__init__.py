@@ -49,6 +49,9 @@ class MultithreadProcessor():
             '-l', '--limit', type=int, dest='limit', default=None,
             help='Limit the number of original images to process.')
         parser.add_argument(
+            '-p', '--progress', type=int, dest='progress', default=None,
+            help='Output progress every N original images.')
+        parser.add_argument(
             '-v', '--verbose', dest='verbose',
             action='store_const', const=True, default=False,
             help='Increase verbosity')
@@ -62,10 +65,11 @@ class MultithreadProcessor():
         processor.execute(**args)
 
     def execute(self, force=False, jobs=5, limit=None, verbose=False,
-                timeout=None, key=None, **kwargs):
+                timeout=None, key=None, progress=None, **kwargs):
         self.force = force
         self.timeout = timeout
         self.key = key
+        self.progress_gap = progress
 
         if verbose:
             log.setLevel(logging.DEBUG)
@@ -126,13 +130,14 @@ class MultithreadProcessor():
             log.error("{}\n{}".format(key, traceback.format_exc()))
             with self.lock:
                 self.errors += 1
-        progress = self.skipped + self.processed + self.errors
-        if progress % 10 == 0:
-            log.info('Progress: {} / {} ({:.2%}), elapsed time: {}'.
-                     format(progress,
-                            self.total,
-                            progress / self.total,
-                            datetime.datetime.now() - self.start))
+        if self.progress_gap is not None:
+            progress = self.skipped + self.processed + self.errors
+            if progress % self.progress_gap == 0:
+                log.info('Progress: {} / {} ({:.2%}), elapsed time: {}'.
+                         format(progress,
+                                self.total,
+                                progress / self.total,
+                                datetime.datetime.now() - self.start))
 
     def do_process_key(self):
         raise NotImplementedError()
