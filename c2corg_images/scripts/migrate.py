@@ -16,30 +16,44 @@ class Migrator(MultithreadProcessor):
     def __init__(self, *args, **kwargs):
         super(MultithreadProcessor, self).__init__(*args, **kwargs)
         self.v5_engine = create_engine(V5_DATABASE_URL)
+        self.connection = self.v5_engine.connect()
+        sql = """
+CREATE TEMPORARY TABLE temp_images
+(
+  image_archive_id integer primary key,
+  filename character varying(30) unique
+);
+
+INSERT INTO temp_images (image_archive_id, filename)
+SELECT min(image_archive_id), filename
+  FROM app_images_archives
+  GROUP BY filename
+  ORDER BY min(image_archive_id);
+"""
+        self.connection.execute(sql)
 
     def do_keys(self):
         batch_size = 500
         offset = 0
-        connection = self.v5_engine.connect()
         sql = """
 SELECT count(*) AS count
-FROM app_images_archives;
+FROM temp_images;
 """
-        total = connection.execute(sql).fetchone()['count']
+        total = self.connection.execute(sql).fetchone()['count']
 
         while offset < total:
             sql = """
 SELECT filename
-FROM app_images_archives
-ORDER BY id {}
+FROM temp_images
+ORDER BY image_archive_id {}
 LIMIT {} OFFSET {};
 """.format(os.environ.get('V5_ORDER', 'ASC'), batch_size, offset)
-            result = connection.execute(sql)
+            result = self.connection.execute(sql)
             for row in result:
                 yield row['filename']
 
             offset += batch_size
-        connection.close()
+        self.connection.close()
 
     def do_process_key(self, key):
         to_create = [key] + resized_keys(key)

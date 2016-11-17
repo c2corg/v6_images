@@ -14,6 +14,7 @@ key2 = '1437738073_375759438.jpg'
             return_value=Mock(
                 execute=Mock(
                     side_effect=[
+                        None,
                         Mock(
                             fetchone=Mock(
                                 return_value={'count': 2})),
