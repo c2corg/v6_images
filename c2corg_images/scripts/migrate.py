@@ -3,20 +3,25 @@ import requests
 from sqlalchemy import create_engine
 from c2corg_images.scripts import MultithreadProcessor
 from c2corg_images.resizing import create_resized_images, resized_keys
-from c2corg_images.storage import temp_storage, active_storage
+from c2corg_images.storage import S3Storage, temp_storage, active_storage
 
 import logging
 log = logging.getLogger(__name__)
 
 V5_DATABASE_URL = os.environ.get('V5_DATABASE_URL', None)
+BUCKET_DATABASE_URL = os.environ.get('BUCKET_DATABASE_URL', None)
 
 
 class Migrator(MultithreadProcessor):
 
     def __init__(self, *args, **kwargs):
         super(MultithreadProcessor, self).__init__(*args, **kwargs)
+        self._init_v5_database()
+        self._init_bucket_database()
+
+    def _init_v5_database(self):
         self.v5_engine = create_engine(V5_DATABASE_URL)
-        self.connection = self.v5_engine.connect()
+        self.v5_connection = self.v5_engine.connect()
         sql = """
 CREATE TEMPORARY TABLE temp_images
 (
@@ -30,7 +35,44 @@ SELECT min(image_archive_id), filename
   GROUP BY filename
   ORDER BY min(image_archive_id);
 """
-        self.connection.execute(sql)
+        self.v5_connection.execute(sql)
+
+    def _init_bucket_database(self):
+        self.bucket_engine = create_engine(BUCKET_DATABASE_URL)
+        self.bucket_connection = self.bucket_engine.connect()
+        sql = """
+CREATE TABLE IF NOT EXISTS {} (
+    key character varying(30) PRIMARY KEY
+);
+""".format(self._bucket_name())
+        self.bucket_connection.execute(sql)
+
+    def _bucket_name(self):
+        if isinstance(active_storage, S3Storage):
+            return active_storage._bucket_name
+        else:
+            return 'local_active_folder'
+
+    def _is_migrated(self, key):
+        sql = """
+SELECT count(*) AS count
+FROM {}
+WHERE key = '{}';
+""".format(self._bucket_name(), key)
+        if self.bucket_connection.execute(sql).fetchone()['count'] == 1:
+            log.debug('{} is marked as migrated'.format(key))
+            return True
+
+        if active_storage.exists(key):
+            log.debug('{} already exists in active_storage'.format(key))
+            self._set_migrated(key)
+            return True
+
+    def _set_migrated(self, key):
+        sql = """
+INSERT INTO {} (key) VALUES ('{}');
+        """.format(self._bucket_name(), key)
+        self.bucket_connection.execute(sql)
 
     def do_keys(self):
         batch_size = 500
@@ -39,7 +81,7 @@ SELECT min(image_archive_id), filename
 SELECT count(*) AS count
 FROM temp_images;
 """
-        total = self.connection.execute(sql).fetchone()['count']
+        total = self.v5_connection.execute(sql).fetchone()['count']
 
         while offset < total:
             sql = """
@@ -48,18 +90,18 @@ FROM temp_images
 ORDER BY image_archive_id {}
 LIMIT {} OFFSET {};
 """.format(os.environ.get('V5_ORDER', 'ASC'), batch_size, offset)
-            result = self.connection.execute(sql)
+            result = self.v5_connection.execute(sql)
             for row in result:
                 yield row['filename']
 
             offset += batch_size
-        self.connection.close()
+        self.v5_connection.close()
 
     def do_process_key(self, key):
         to_create = [key] + resized_keys(key)
         if not self.force:
             for key_to_create in list(to_create):
-                if active_storage.exists(key_to_create):
+                if self._is_migrated(key_to_create):
                     to_create.remove(key_to_create)
             if len(to_create) == 0:
                 log.debug('{} skipping'.format(key))
@@ -101,6 +143,7 @@ LIMIT {} OFFSET {};
             if temp_storage.exists(key_to_create):
                 log.debug('{} uploading {}'.format(key, key_to_create))
                 temp_storage.move(key_to_create, active_storage)
+                self._set_migrated(key_to_create)
             else:
                 log.warning('{} File does not exists, skipping upload of {}'.
                             format(key, key_to_create))
