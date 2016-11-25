@@ -46,9 +46,10 @@ RUN rm -fr .cache \
 COPY scripts scripts
 COPY tests tests
 
-RUN mkdir -p /var/www/incoming /var/www/active /var/www/temp && \
-    chown www-data:www-data /var/www/incoming /var/www/active /var/www/temp
-
 EXPOSE 8080
-USER www-data
-CMD ["gunicorn", "-w", "4", "-b", "0.0.0.0:8080", "c2corg_images:app"]
+
+COPY /docker-entrypoint.sh /
+COPY /docker-entrypoint.d/* /docker-entrypoint.d/
+ENTRYPOINT ["/docker-entrypoint.sh"]
+
+CMD ["gunicorn", "-w", "4", "-u", "www-data", "-g", "www-data", "-b", "0.0.0.0:8080", "c2corg_images:app"]
