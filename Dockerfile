@@ -5,6 +5,13 @@ ENV DEBIAN_FRONTEND noninteractive
 RUN echo 'APT::Install-Recommends "0";' > /etc/apt/apt.conf.d/50no-install-recommends
 RUN echo 'APT::Install-Suggests "0";' > /etc/apt/apt.conf.d/50no-install-suggests
 
+WORKDIR /var/www/
+
+COPY requirements.txt ./
+COPY requirements_pip.txt ./
+COPY setup.py ./
+COPY c2corg_images c2corg_images
+
 RUN apt-get update \
  && apt-get -y upgrade \
  && apt-get install -y \
@@ -19,22 +26,12 @@ RUN apt-get update \
     libpq5 \
     libpq-dev \
     python3-dev \
-    gcc
-
-WORKDIR /var/www/
-
-COPY requirements.txt ./
-COPY requirements_pip.txt ./
-COPY setup.py ./
-COPY c2corg_images c2corg_images
-
-RUN pip3 install -r requirements_pip.txt && \
-    pip  install -r requirements.txt && \
-    pip  install . && \
-    py3compile -f . && \
-    rm -fr .cache
-
-RUN rm -fr .cache \
+    gcc \
+ && pip3 install -r requirements_pip.txt \
+ && pip  install -r requirements.txt \
+ && pip  install . \
+ && py3compile -f . \
+ && rm -fr .cache \
  && apt-get -y purge \
     python3-dev \
     libpq-dev \
