@@ -1,5 +1,5 @@
 pyramid==1.6.1
-gunicorn==19.5.0
+gunicorn==19.6.0
 pytest==2.8.5
 boto3==1.4.0
 flake8==2.5.4
