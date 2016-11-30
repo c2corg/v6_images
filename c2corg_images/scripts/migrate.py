@@ -26,14 +26,23 @@ class Migrator(MultithreadProcessor):
 CREATE TEMPORARY TABLE temp_images
 (
   image_archive_id integer primary key,
-  filename character varying(30) unique
+  filename character varying(30) unique,
+  has_svg boolean
 );
 
-INSERT INTO temp_images (image_archive_id, filename)
-SELECT min(image_archive_id), filename
-  FROM app_images_archives
-  GROUP BY filename
-  ORDER BY min(image_archive_id);
+INSERT INTO temp_images (
+  image_archive_id,
+  filename,
+  has_svg
+)
+SELECT
+  min(image_archive_id),
+  filename,
+  has_svg
+FROM app_images_archives
+WHERE has_svg
+GROUP BY filename, has_svg
+ORDER BY min(image_archive_id);
 """
         self.v5_connection.execute(sql)
 
@@ -85,14 +94,20 @@ FROM temp_images;
 
         while offset < total:
             sql = """
-SELECT filename
+SELECT
+  filename,
+  has_svg
 FROM temp_images
 ORDER BY image_archive_id {}
 LIMIT {} OFFSET {};
 """.format(os.environ.get('V5_ORDER', 'ASC'), batch_size, offset)
             result = self.v5_connection.execute(sql)
             for row in result:
-                yield row['filename']
+                filename = row['filename']
+                if row['has_svg'] is True:
+                    base, ext = os.path.splitext(filename)
+                    filename = '{}.svg'.format(base)
+                yield filename
 
             offset += batch_size
         self.v5_connection.close()
