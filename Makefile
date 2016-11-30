@@ -3,6 +3,10 @@ build:
 	docker pull docker.io/debian:jessie
 	docker build -t c2corg/v6_images:latest .
 
+build_tests:
+	docker pull docker.io/debian:jessie
+	docker build -t c2corg/v6_images:latest -f Dockerfile_tests .
+
 .PHONY:
 run: build
 	docker-compose up
@@ -23,11 +27,11 @@ mypy: build
 	docker-compose run --rm -e TRAVIS=$$TRAVIS wsgi scripts/check_typing.sh
 
 .PHONY:
-test-inside: build
+test-inside: build_tests
 	docker-compose run --rm -e TRAVIS=$$TRAVIS wsgi scripts/launch_inside_tests.sh
 
 .PHONY:
-test-outside: .build/venv/bin/py.test build
+test-outside: .build/venv/bin/py.test build_tests
 	.build/venv/bin/py.test -v tests/wsgi; ERROR=$$?; [ 0 -eq $$ERROR ] || (scripts/show_logs.sh; exit $$ERROR)
 
 .PHONY:
