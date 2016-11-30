@@ -21,8 +21,13 @@ def ping(request):
     return Response('Pong!' % request.matchdict)
 
 
-def get_format(filename: str) -> str:
-    with Image(filename=filename) as image:
+def get_format(path: str, filename: str) -> str:
+    # imagemagick returns 'PNG' for SVG files
+    base, ext = os.path.splitext(filename)
+    if ext.upper() == '.SVG':
+        return 'SVG'
+
+    with Image(filename=path) as image:
         return image.format
 
 
@@ -60,7 +65,7 @@ def upload(request):
         log.debug('%s - copied raw file to %s', pre_key, output_file)
 
     try:
-        kind = get_format(raw_file)
+        kind = get_format(raw_file, request.POST['file'].filename)
         log.debug('%s - detected format is %s', pre_key, kind)
     except:
         log.exception('Bad format for %s', output_file)
