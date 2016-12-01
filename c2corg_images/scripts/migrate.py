@@ -90,9 +90,9 @@ INSERT INTO {} (key) VALUES ('{}');
 SELECT count(*) AS count
 FROM temp_images;
 """
-        total = self.v5_connection.execute(sql).fetchone()['count']
+        self.total = self.v5_connection.execute(sql).fetchone()['count']
 
-        while offset < total:
+        while offset < self.total:
             sql = """
 SELECT
   filename,
