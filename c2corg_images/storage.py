@@ -4,6 +4,7 @@ import shutil
 import threading
 import boto3
 import botocore
+import mimetypes
 
 import logging
 log = logging.getLogger(__name__)
@@ -104,10 +105,12 @@ class S3Storage(BaseStorage):
         self.object(key).download_file(path)
 
     def put(self, key, path):
-        self.bucket().upload_file(Filename=path,
-                                  Key=key)
-        if self.default_acl is not None:
-            self.object(key).Acl().put(ACL=self.default_acl)
+        with open(path, 'rb') as file:
+            self.bucket().put_object(
+                ACL=self.default_acl,
+                Body=file,
+                ContentType=mimetypes.guess_type(path)[0],
+                Key=key)
 
     def delete(self, key):
         self.object(key).delete()
