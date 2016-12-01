@@ -81,7 +81,7 @@ class MultithreadProcessor():
         self.errors = 0
         self.start = datetime.datetime.now()
 
-        self.queue = queue.Queue()
+        self.queue = queue.Queue(maxsize=1000)
         self.workers = []
         self.lock = threading.Lock()
 
