@@ -158,7 +158,8 @@ LIMIT {} OFFSET {};
             if temp_storage.exists(key_to_create):
                 log.debug('{} uploading {}'.format(key, key_to_create))
                 temp_storage.move(key_to_create, active_storage)
-                self._set_migrated(key_to_create)
+                if not self._is_migrated(key_to_create):
+                    self._set_migrated(key_to_create)
             else:
                 log.warning('{} File does not exists, skipping upload of {}'.
                             format(key, key_to_create))
