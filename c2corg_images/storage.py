@@ -93,7 +93,10 @@ class S3Storage(BaseStorage):
 
     def exists(self, key):
         try:
-            self.object(key).load()
+            object = self.object(key)
+            object.load()
+            if object.content_type != mimetypes.guess_type(key):
+                object.delete()
         except botocore.exceptions.ClientError as e:
             if e.response['Error']['Code'] == "404":
                 return False

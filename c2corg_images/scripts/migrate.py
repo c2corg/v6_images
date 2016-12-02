@@ -40,7 +40,6 @@ SELECT
   filename,
   has_svg
 FROM app_images_archives
-WHERE has_svg
 GROUP BY filename, has_svg
 ORDER BY min(image_archive_id);
 """
@@ -90,9 +89,9 @@ INSERT INTO {} (key) VALUES ('{}');
 SELECT count(*) AS count
 FROM temp_images;
 """
-        total = self.v5_connection.execute(sql).fetchone()['count']
+        self.total = self.v5_connection.execute(sql).fetchone()['count']
 
-        while offset < total:
+        while offset < self.total:
             sql = """
 SELECT
   filename,
@@ -113,6 +112,14 @@ LIMIT {} OFFSET {};
         self.v5_connection.close()
 
     def do_process_key(self, key):
+        base, ext = os.path.splitext(key)
+        if ext == '.svg':
+            for rasterized in ('{}.jpg'.format(base),
+                               '{}.png'.format(base)):
+                if active_storage.exists(rasterized):
+                    log.info("{} delete file {}".format(key, rasterized))
+                    active_storage.delete(rasterized)
+
         to_create = [key] + resized_keys(key)
         if not self.force:
             for key_to_create in list(to_create):
@@ -158,7 +165,8 @@ LIMIT {} OFFSET {};
             if temp_storage.exists(key_to_create):
                 log.debug('{} uploading {}'.format(key, key_to_create))
                 temp_storage.move(key_to_create, active_storage)
-                self._set_migrated(key_to_create)
+                if not self._is_migrated(key_to_create):
+                    self._set_migrated(key_to_create)
             else:
                 log.warning('{} File does not exists, skipping upload of {}'.
                             format(key, key_to_create))

@@ -14,9 +14,11 @@ sql_results = (
         Mock(fetchone=Mock(return_value={'count': 2})),
         files] +
     4 * [Mock(fetchone=Mock(return_value={'count': 0}))] +  # _is_migrated
-    4 * [None] +  # _set_migrated
+    4 * [Mock(fetchone=Mock(return_value={'count': 0})),  # _is_migrated
+         None] +  # _set_migrated
     4 * [Mock(fetchone=Mock(return_value={'count': 0}))] +  # _is_migrated
-    4 * [None] +  # _set_migrated
+    4 * [Mock(fetchone=Mock(return_value={'count': 0})),  # _is_migrated
+         None] +  # _set_migrated
     [
         Mock(fetchone=Mock(return_value={'count': 2})),
         files] +

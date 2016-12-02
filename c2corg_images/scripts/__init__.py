@@ -81,7 +81,7 @@ class MultithreadProcessor():
         self.errors = 0
         self.start = datetime.datetime.now()
 
-        self.queue = queue.Queue()
+        self.queue = queue.Queue(maxsize=1000)
         self.workers = []
         self.lock = threading.Lock()
 
@@ -90,13 +90,12 @@ class MultithreadProcessor():
             worker.start()
             self.workers.append(worker)
 
-        self.total = 0
+        enqueued = 0
         for key in self.keys():
-            self.total += 1
-
             self.queue.put(key)
+            enqueued += 1
 
-            if limit is not None and self.total >= limit:
+            if limit is not None and enqueued >= limit:
                 break
 
         # block until all keys are processed
@@ -113,6 +112,7 @@ class MultithreadProcessor():
         print('Total duration: {}'.format(datetime.datetime.now() - self.start))
 
     def keys(self):
+        self.total = 1
         if self.key is not None:
             yield self.key
         else:
