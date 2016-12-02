@@ -40,7 +40,6 @@ SELECT
   filename,
   has_svg
 FROM app_images_archives
-WHERE has_svg
 GROUP BY filename, has_svg
 ORDER BY min(image_archive_id);
 """
