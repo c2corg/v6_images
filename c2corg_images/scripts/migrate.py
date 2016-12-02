@@ -112,6 +112,14 @@ LIMIT {} OFFSET {};
         self.v5_connection.close()
 
     def do_process_key(self, key):
+        base, ext = os.path.splitext(key)
+        if ext == '.svg':
+            for rasterized in ('{}.jpg'.format(base),
+                               '{}.png'.format(base)):
+                if active_storage.exists(rasterized):
+                    log.info("{} delete file {}".format(key, rasterized))
+                    active_storage.delete(rasterized)
+
         to_create = [key] + resized_keys(key)
         if not self.force:
             for key_to_create in list(to_create):
