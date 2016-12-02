@@ -10,6 +10,7 @@ WORKDIR /var/www/
 COPY requirements.txt ./
 COPY requirements_pip.txt ./
 COPY setup.py ./
+COPY logging.conf ./
 COPY c2corg_images c2corg_images
 
 RUN apt-get update \
