@@ -61,22 +61,28 @@ CREATE TABLE IF NOT EXISTS {} (
         else:
             return 'local_active_folder'
 
-    def _is_migrated(self, key):
+    def _is_marked_migrated(self, key):
         sql = """
 SELECT count(*) AS count
 FROM {}
 WHERE key = '{}';
 """.format(self._bucket_name(), key)
         if self.bucket_connection.execute(sql).fetchone()['count'] == 1:
+            return True
+
+    def _is_migrated(self, key):
+        if self._is_marked_migrated(key):
             log.debug('{} is marked as migrated'.format(key))
             return True
 
         if active_storage.exists(key):
-            log.debug('{} already exists in active_storage'.format(key))
+            log.debug('{} exists in active_storage'.format(key))
             self._set_migrated(key)
             return True
 
     def _set_migrated(self, key):
+        if self._is_marked_migrated(key):
+            return
         sql = """
 INSERT INTO {} (key) VALUES ('{}');
         """.format(self._bucket_name(), key)
@@ -165,8 +171,8 @@ LIMIT {} OFFSET {};
             if temp_storage.exists(key_to_create):
                 log.debug('{} uploading {}'.format(key, key_to_create))
                 temp_storage.move(key_to_create, active_storage)
-                if not self._is_migrated(key_to_create):
-                    self._set_migrated(key_to_create)
+                assert active_storage.exists(key_to_create)
+                self._set_migrated(key_to_create)
             else:
                 log.warning('{} File does not exists, skipping upload of {}'.
                             format(key, key_to_create))

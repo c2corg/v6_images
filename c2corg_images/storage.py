@@ -95,8 +95,19 @@ class S3Storage(BaseStorage):
         try:
             object = self.object(key)
             object.load()
-            if object.content_type != mimetypes.guess_type(key):
-                object.delete()
+
+            mimetype = mimetypes.guess_type(key)[0]
+            if object.content_type != mimetype:
+                object.copy_from(
+                    ACL=self.default_acl,
+                    ContentType=mimetype,
+                    CopySource={
+                        'Bucket': self._bucket_name,
+                        'Key': key
+                    }
+                )
+            return True
+
         except botocore.exceptions.ClientError as e:
             if e.response['Error']['Code'] == "404":
                 return False
@@ -112,7 +123,7 @@ class S3Storage(BaseStorage):
             self.bucket().put_object(
                 ACL=self.default_acl,
                 Body=file,
-                ContentType=mimetypes.guess_type(path)[0],
+                ContentType=mimetypes.guess_type(key)[0],
                 Key=key)
 
     def delete(self, key):
@@ -122,10 +133,11 @@ class S3Storage(BaseStorage):
         if isinstance(other_storage, S3Storage):
             new_object = other_storage.object(key)
             new_object.copy_from(
+                ACL=other_storage.default_acl,
+                ContentType=mimetypes.guess_type(key)[0],
                 CopySource={
                     'Bucket': self._bucket_name,
                     'Key': key})
-            new_object.Acl().put(ACL=other_storage.default_acl or 'private')
         elif isinstance(other_storage, LocalStorage):
             path = os.path.join(other_storage.path(), key)
             self.get(key, path)
