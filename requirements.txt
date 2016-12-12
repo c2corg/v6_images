@@ -9,3 +9,6 @@ WebTest==2.0.20
 SQLAlchemy==1.0.11
 psycopg2==2.6.1
 python-json-logger==0.1.5
+eventlet==0.20.0
+gevent==1.2a2
+gaiohttp-websocket==0.1.1
