@@ -13,7 +13,8 @@ COPY setup.py ./
 COPY logging.conf ./
 COPY c2corg_images c2corg_images
 
-RUN apt-get update \
+RUN set -x \
+ && apt-get update \
  && apt-get -y upgrade \
  && apt-get install -y \
     python3 \
