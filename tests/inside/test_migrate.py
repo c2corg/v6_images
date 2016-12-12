@@ -25,6 +25,7 @@ sql_results = (
     8 * [Mock(fetchone=Mock(return_value={'count': 1}))])  # _is_migrated
 
 
+@utils.skipIfTravis
 @patch(
     'c2corg_images.scripts.migrate.create_engine',
     return_value=Mock(
