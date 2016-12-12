@@ -30,6 +30,7 @@ RUN set -x \
     python3-dev \
     gcc \
  && pip3 install -r requirements_pip.txt \
+ && pip -V \
  && pip  install -r requirements.txt \
  && pip  install . \
  && py3compile -f . \
