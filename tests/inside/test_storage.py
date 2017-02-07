@@ -52,6 +52,9 @@ class BaseStorageTest(unittest.TestCase):
         self.active_storage.delete(key)
         assert not self.active_storage.exists(key)
 
+        # delete file that does not exists
+        self.active_storage.delete('test_not_exists.jpg')
+
     def resizing_protocol(self):
         # for resizing object is in active storage
         self.active_storage.put(key, source_file)

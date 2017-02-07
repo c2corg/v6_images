@@ -1,5 +1,5 @@
 import unittest
-from unittest.mock import patch
+from unittest.mock import patch, call
 from webtest import TestApp
 from c2corg_images import app
 
@@ -23,3 +23,33 @@ class TestViews(unittest.TestCase):
                       {'secret': 'good_secret',
                        'filename': 'test.png'},
                       status=200)
+
+    @patch('c2corg_images.views.active_storage.delete')
+    def test_delete_svg(self, delete_mock):
+        """Test delete with one svg filename"""
+        self.app.post('/delete',
+                      {'secret': 'good_secret',
+                       'filenames': ['test.svg']},
+                      status=200)
+        delete_mock.assert_has_calls([
+            call('test.svg'),
+            call('testBI.jpg'),
+            call('testMI.jpg'),
+            call('testSI.jpg')])
+
+    @patch('c2corg_images.views.active_storage.delete')
+    def test_delete_multi(self, delete_mock):
+        """Test delete with multiple filenames"""
+        self.app.post('/delete',
+                      {'secret': 'good_secret',
+                       'filenames': ['test1.jpg', 'test2.jpg']},
+                      status=200)
+        delete_mock.assert_has_calls([
+            call('test1.jpg'),
+            call('test1BI.jpg'),
+            call('test1MI.jpg'),
+            call('test1SI.jpg'),
+            call('test2.jpg'),
+            call('test2BI.jpg'),
+            call('test2MI.jpg'),
+            call('test2SI.jpg')])
