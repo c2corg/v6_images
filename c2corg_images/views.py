@@ -105,3 +105,23 @@ def publish(request):
     for key in resized_keys(filename):
         incoming_storage.move(key, active_storage)
     return {'success': True}
+
+
+@view_config(route_name='delete', renderer='json')
+def delete(request):
+    if request.POST['secret'] != os.environ['API_SECRET_KEY']:
+        raise HTTPForbidden('Bad secret key')
+    filenames = request.POST.getall('filenames')
+    for filename in filenames:
+        try:
+            active_storage.delete(filename)
+        except Exception:
+            log.error('Deleting {} failed'.format(filename), exc_info=True)
+
+        for key in resized_keys(filename):
+            try:
+                active_storage.delete(key)
+            except Exception:
+                log.error('Deleting {} failed'.format(key), exc_info=True)
+
+    return {'success': True}

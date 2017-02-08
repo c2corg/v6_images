@@ -178,6 +178,8 @@ class LocalStorage(BaseStorage):
         shutil.copyfile(path, self.object_path(key))
 
     def delete(self, key):
+        if not self.exists(key):
+            return
         os.unlink(self.object_path(key))
 
     def copy(self, key, other_storage):
