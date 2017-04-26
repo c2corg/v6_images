@@ -65,6 +65,8 @@ bucket.
 
 ``V5_DATABASE_URL``: Address of the V5 database for the migration script.
 
+``ROUTE_PREFIX``: Path prefix for serving the photo backend API. 
+
 Here is an example configuration with S3 backend on exoscale:
 
 ```

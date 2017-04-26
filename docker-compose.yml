@@ -27,6 +27,8 @@ wsgi:
     EXO_ACCESS_KEY_ID:
     EXO_SECRET_KEY:
 
+    ROUTE_PREFIX: /
+
   cap_add:
     - NET_BIND_SERVICE
   ports:
