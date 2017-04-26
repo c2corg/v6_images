@@ -25,7 +25,7 @@ def add_cors_headers_response_callback(event):
         })
     event.request.add_response_callback(cors_headers)
 
-config = Configurator()
+config = Configurator(route_prefix=os.environ.get('ROUTE_PREFIX', '/'))
 config.add_renderer('myjson', JSON())
 
 config.add_route('ping', '/ping')
