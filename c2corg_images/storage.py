@@ -12,6 +12,8 @@ log = logging.getLogger(__name__)
 
 EXPIRE_HOURS = 2
 PAGE_SIZE = 1000
+S3_SIGNATURE_VERSION = os.environ.get('S3_SIGNATURE_VERSION', 's3v4')
+S3_CONFIG = botocore.config.Config(signature_version=S3_SIGNATURE_VERSION)
 
 
 thread_data = threading.local()
@@ -67,7 +69,7 @@ class S3Storage(BaseStorage):
     def resource(self):
         if self._endpoint_url not in resources():
             if self._endpoint_url is None:
-                resource = session().resource('s3')
+                resource = session().resource('s3', config=S3_CONFIG)
             else:
                 resource = session().resource(
                     service_name='s3',
@@ -208,9 +210,7 @@ def getS3Params(prefix):
     PREFIX = os.environ.get("{}_PREFIX".format(prefix), False)
     if PREFIX:
         params['endpoint_url'] = os.environ.get("{}_ENDPOINT".format(PREFIX), False)
-        params['config'] = botocore.config.Config(
-            signature_version='s3'
-        )
+        params['config'] = S3_CONFIG
         params['aws_access_key_id'] = os.environ.get("{}_ACCESS_KEY_ID".format(PREFIX))
         params['aws_secret_access_key'] = os.environ.get("{}_SECRET_KEY".format(PREFIX))
 

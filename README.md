@@ -58,10 +58,14 @@ Configuration should be set by environment variables:
 
 *PREFIX_*``SECRET_KEY``: Secret key for corresponding prefix.
 
+``S3_SIGNATURE_VERSION``: S3 signature version ('s3' or 's3v4'), see [docs](https://botocore.readthedocs.io/en/stable/reference/config.html#botocore.config.Config).
+
 ``API_SECRET_KEY``: API secret key, needed to publish images on the active
 bucket.
 
 ``V5_DATABASE_URL``: Address of the V5 database for the migration script.
+
+``ROUTE_PREFIX``: Path prefix for serving the photo backend API. 
 
 Here is an example configuration with S3 backend on exoscale:
 

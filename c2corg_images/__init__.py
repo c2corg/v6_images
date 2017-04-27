@@ -25,12 +25,13 @@ def add_cors_headers_response_callback(event):
         })
     event.request.add_response_callback(cors_headers)
 
-config = Configurator()
+config = Configurator(route_prefix=os.environ.get('ROUTE_PREFIX', '/'))
 config.add_renderer('myjson', JSON())
 
 config.add_route('ping', '/ping')
 config.add_route('upload', '/upload')
 config.add_route('publish', '/publish')
+config.add_route('recrop', '/recrop')
 config.add_route('delete', '/delete')
 config.add_static_view(name='active', path=os.environ['ACTIVE_FOLDER'])
 config.add_subscriber(add_cors_headers_response_callback, NewRequest)
