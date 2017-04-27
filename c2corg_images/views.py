@@ -9,6 +9,7 @@ from pyramid.httpexceptions import HTTPForbidden
 
 from wand.image import Image
 
+from c2corg_images.cropping import create_cropped_image
 from c2corg_images.resizing import create_resized_images, resized_keys
 from c2corg_images.storage import temp_storage, incoming_storage, active_storage
 
@@ -38,6 +39,13 @@ def create_pseudo_unique_key() -> str:
     # https://github.com/c2corg/camptocamp.org/blob/1e60b94803765ca09fba533755dad0ecd4cad262/apps/frontend/lib/c2cTools.class.php  # noqa
     since_epoch = int((datetime.now() - epoch).total_seconds())
     return "%d_%d" % (since_epoch, random.randint(0, 2**31 - 1))
+
+
+def crop_and_publish_thumbs(filename, crop_options):
+    create_cropped_image(temp_storage.path(), filename, crop_options)
+    create_resized_images(temp_storage.path(), filename)
+    for key in resized_keys(filename):
+        temp_storage.move(key, active_storage)
 
 
 @view_config(route_name='upload', request_method='OPTIONS')
@@ -101,10 +109,39 @@ def publish(request):
     if request.POST['secret'] != os.environ['API_SECRET_KEY']:
         raise HTTPForbidden('Bad secret key')
     filename = request.POST['filename']
+    if 'crop' in request.POST:
+        crop_options = request.POST['crop']
+        incoming_storage.copy(filename, temp_storage)
+        crop_and_publish_thumbs(filename, crop_options)
+        temp_storage.delete(filename)
+    else:
+        for key in resized_keys(filename):
+            incoming_storage.move(key, active_storage)
     incoming_storage.move(filename, active_storage)
-    for key in resized_keys(filename):
-        incoming_storage.move(key, active_storage)
     return {'success': True}
+
+
+@view_config(route_name='recrop', renderer='json')
+def recrop(request):
+    if request.POST['secret'] != os.environ['API_SECRET_KEY']:
+        raise HTTPForbidden('Bad secret key')
+    # Retrieve and rename file
+    old_filename = request.POST['filename']
+    base, ext = os.path.splitext(old_filename)
+    active_storage.move(old_filename, temp_storage)
+    filename = '{name}{ext}'.format(name=create_pseudo_unique_key(), ext=ext)
+    os.rename(temp_storage.object_path(old_filename), temp_storage.object_path(filename))
+    temp_storage.copy(filename, active_storage)
+    # Crop and generate thumbnails
+    if 'crop' in request.POST:
+        crop_options = request.POST['crop']
+        crop_and_publish_thumbs(filename, crop_options)
+    else:
+        create_resized_images(temp_storage.path(), filename)
+        for key in resized_keys(filename):
+            temp_storage.move(key, active_storage)
+    temp_storage.delete(filename)
+    return {'filename': filename}
 
 
 @view_config(route_name='delete', renderer='json')
