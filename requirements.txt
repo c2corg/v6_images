@@ -12,3 +12,4 @@ python-json-logger==0.1.5
 eventlet==0.20.0
 gevent==1.2a2
 gaiohttp-websocket==0.1.1
+Pillow==4.1.0
