@@ -67,6 +67,8 @@ bucket.
 
 ``ROUTE_PREFIX``: Path prefix for serving the photo backend API. 
 
+``RESIZING_CONFIG``: Configuration of the thumbnail names and sizes serialized in JSON. See c2corg\_images/__init__.py for a description of the format. 
+
 Here is an example configuration with S3 backend on exoscale:
 
 ```
