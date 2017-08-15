@@ -37,3 +37,51 @@ def test_publish_good_secret(connection):
     connection.post('/publish',
                     data={'secret': 'good_secret', 'filename': filename},
                     expected_status=200)
+
+
+def test_publish_twice_no_crop(connection):
+    path = os.path.join(data_folder, 'images', 'violin.jpg')
+    body = upload_image(connection, path, expected_status=200)
+    filename = body['filename']
+    connection.post('/publish',
+                    data={'secret': 'good_secret', 'filename': filename},
+                    expected_status=200)
+    connection.post('/publish',
+                    data={'secret': 'good_secret', 'filename': filename},
+                    expected_status=200)
+
+
+def test_publish_twice_crop(connection):
+    path = os.path.join(data_folder, 'images', 'violin.jpg')
+    body = upload_image(connection, path, expected_status=200)
+    filename = body['filename']
+    connection.post('/publish',
+                    data={'secret': 'good_secret', 'filename': filename, 'crop': '100x100+10+10'},
+                    expected_status=200)
+    connection.post('/publish',
+                    data={'secret': 'good_secret', 'filename': filename, 'crop': '200x200+10+10'},
+                    expected_status=200)
+
+
+def test_publish_twice_crop_no_crop(connection):
+    path = os.path.join(data_folder, 'images', 'violin.jpg')
+    body = upload_image(connection, path, expected_status=200)
+    filename = body['filename']
+    connection.post('/publish',
+                    data={'secret': 'good_secret', 'filename': filename, 'crop': '100x100+10+10'},
+                    expected_status=200)
+    connection.post('/publish',
+                    data={'secret': 'good_secret', 'filename': filename},
+                    expected_status=200)
+
+
+def test_publish_twice_no_crop_crop(connection):
+    path = os.path.join(data_folder, 'images', 'violin.jpg')
+    body = upload_image(connection, path, expected_status=200)
+    filename = body['filename']
+    connection.post('/publish',
+                    data={'secret': 'good_secret', 'filename': filename},
+                    expected_status=200)
+    connection.post('/publish',
+                    data={'secret': 'good_secret', 'filename': filename, 'crop': '100x100+10+10'},
+                    expected_status=200)
