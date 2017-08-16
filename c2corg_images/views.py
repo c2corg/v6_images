@@ -109,15 +109,21 @@ def publish(request):
     if request.POST['secret'] != os.environ['API_SECRET_KEY']:
         raise HTTPForbidden('Bad secret key')
     filename = request.POST['filename']
+    already_published = active_storage.exists(filename)
     if 'crop' in request.POST:
         crop_options = request.POST['crop']
-        incoming_storage.copy(filename, temp_storage)
+        if already_published:
+            active_storage.copy(filename, temp_storage)
+        else:
+            incoming_storage.copy(filename, temp_storage)
         crop_and_publish_thumbs(filename, crop_options)
         temp_storage.delete(filename)
     else:
         for key in resized_keys(filename):
-            incoming_storage.move(key, active_storage)
-    incoming_storage.move(filename, active_storage)
+            if incoming_storage.exists(key):
+                incoming_storage.move(key, active_storage)
+    if not already_published:
+        incoming_storage.move(filename, active_storage)
     return {'success': True}
 
 
