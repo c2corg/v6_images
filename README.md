@@ -145,3 +145,20 @@ To regenerate the *resized* images:
 ``docker-compose exec images resize``
 
 ``docker-compose exec images resize --help`` to get options list.
+
+
+Release on docker hub
+---------------------
+
+The project is built by Jenkins.
+
+To make a release:
+
+* Commit and push to master.
+* Tag the GIT commit.
+* Rebase the `release_${MAJOR_VERSION}` branch to this commit and push the `release_${MAJOR_VERSION}` and
+  the tag to github. Make sure to do that at the same time so that Jenkins can see the tag when it builds
+  the branch.
+
+We need the `release_${MAJOR_VERSION}` branch, so that Jenkins can build a new docker image for the major
+versions every nights.

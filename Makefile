@@ -1,10 +1,12 @@
 .PHONY:
-build:
+pull:
 	docker pull docker.io/debian:jessie
+
+.PHONY:
+build: pull
 	docker build -t c2corg/v6_images:latest .
 
-build_tests:
-	docker pull docker.io/debian:jessie
+build_tests: pull
 	docker build -t c2corg/v6_images:latest -f Dockerfile_tests .
 
 .PHONY:
