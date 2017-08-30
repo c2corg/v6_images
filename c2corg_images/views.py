@@ -5,7 +5,7 @@ from datetime import datetime
 
 from pyramid.response import Response
 from pyramid.view import view_config
-from pyramid.httpexceptions import HTTPForbidden
+from pyramid.httpexceptions import HTTPForbidden, HTTPBadRequest
 
 from wand.image import Image
 
@@ -76,16 +76,14 @@ def upload(request):
         kind = get_format(raw_file, request.POST['file'].filename)
         log.debug('%s - detected format is %s', pre_key, kind)
     except:
-        log.exception('Bad format for %s', output_file)
-        return {'error': 'Unknown image format'}
+        raise HTTPBadRequest('Bad format for %s', output_file)
 
     if kind == 'JPEG':
         kind = 'jpg'
     elif kind in ('PNG', 'GIF', 'SVG'):
         kind = kind.lower()
     else:
-        request.response.status_code = 400
-        return {'error': 'Unsupported image format %s' % kind}
+        raise HTTPBadRequest('Unsupported image format %s' % kind)
 
     # Rename to official extension
     original_key = "{}.{}".format(pre_key, kind)
