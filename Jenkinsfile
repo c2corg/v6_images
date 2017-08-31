@@ -9,6 +9,8 @@ def getMajorRelease() {
 }
 def majorRelease = getMajorRelease()
 
+env.TRAVIS = "true"
+
 // We don't want to publish the same branch twice at the same time.
 dockerBuild {
     stage('Update docker') {
@@ -18,22 +20,12 @@ dockerBuild {
     }
     stage('Build') {
         checkout scm
-        parallel 'Main': {
-            sh 'make build'
-        }, 'Tests': {
-            sh 'make build_tests'
-        }
+        sh 'make build'
     }
     stage('Test') {
         checkout scm
         lock("acceptance-${env.NODE_NAME}") {  //only one acceptance test at a time on a machine
-            parallel 'Main': {
-                sh 'make test-inside'
-            }, 'flake8': {
-                sh 'make flake8'
-            }, 'mypy': {
-                sh 'make mypy'
-            }
+            sh 'make test-inside'
         }
     }
 
@@ -63,7 +55,7 @@ dockerBuild {
                 sh 'docker login -u "$USERNAME" -p "$PASSWORD"'
                 for (String tag: tags) {
                     sh "docker tag camptocamp/saccas_suissealpine_photo:latest camptocamp/saccas_suissealpine_photo:${tag}"
-                    docker.image("camptocamp/saccas_suissealpine_photo:${tag}").push()
+                    sh "docker push camptocamp/saccas_suissealpine_photo:${tag}"
                 }
                 sh 'rm -rf ~/.docker*'
             }
@@ -75,7 +67,7 @@ dockerBuild {
             withCredentials([[$class          : 'UsernamePasswordMultiBinding', credentialsId: 'dockerhub',
                               usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD']]) {
                 sh 'docker login -u "$USERNAME" -p "$PASSWORD"'
-                docker.image('camptocamp/saccas_suissealpine_photo:latest').push()
+                sh 'docker push camptocamp/saccas_suissealpine_photo:latest'
                 sh 'rm -rf ~/.docker*'
             }
         }
@@ -89,7 +81,7 @@ dockerBuild {
                               usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD']]) {
                 sh 'docker login -u "$USERNAME" -p "$PASSWORD"'
                 sh "docker tag camptocamp/saccas_suissealpine_photo:latest camptocamp/saccas_suissealpine_photo:v${majorRelease}"
-                docker.image("camptocamp/saccas_suissealpine_photo:${majorRelease}").push()
+                sh "docker push camptocamp/saccas_suissealpine_photo:v${majorRelease}"
                 sh 'rm -rf ~/.docker*'
             }
         }
