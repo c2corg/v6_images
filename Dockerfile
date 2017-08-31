@@ -7,11 +7,7 @@ RUN echo 'APT::Install-Suggests "0";' > /etc/apt/apt.conf.d/50no-install-suggest
 
 WORKDIR /var/www/
 
-COPY requirements.txt ./
-COPY requirements_pip.txt ./
-COPY setup.py ./
-COPY logging.conf ./
-COPY c2corg_images c2corg_images
+COPY requirements.txt requirements_pip.txt setup.py logging.conf ./
 
 RUN set -x \
  && apt-get update \
@@ -32,8 +28,6 @@ RUN set -x \
  && pip3 install -r requirements_pip.txt \
  && pip -V \
  && pip  install -r requirements.txt \
- && pip  install . \
- && py3compile -f . \
  && rm -fr .cache \
  && apt-get -y purge \
     python3-dev \
@@ -43,8 +37,14 @@ RUN set -x \
  && apt-get clean \
  && rm -rf /var/lib/apt/lists/*
 
+COPY c2corg_images c2corg_images
 COPY scripts scripts
 COPY tests tests
+
+RUN pip install . \
+ && py3compile -f . \
+ && flake8 --max-line-length=120 --ignore=E702 *.py tests c2corg_images \
+ && scripts/check_typing.sh
 
 EXPOSE 8080
 

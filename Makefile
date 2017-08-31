@@ -3,49 +3,37 @@ pull:
 	docker pull docker.io/debian:jessie
 
 .PHONY:
-build: pull
-	docker build -t c2corg/v6_images:latest .
-
-build_tests: pull
-	docker build -t c2corg/v6_images:latest -f Dockerfile_tests .
+build:
+	docker build -t camptocamp/saccas_suissealpine_photo:latest .
 
 .PHONY:
 run: build
-	docker-compose up
+	docker-compose up -e DOCKER_TAG=latest
 
 .PHONY:
 latest:
-	docker pull docker.io/c2corg/v6_images:latest
-	docker-compose up
+	docker pull docker.io/camptocamp/saccas_suissealpine_photo:latest
+	docker-compose -e DOCKER_TAG=latest up
 
 .build/venv/bin/python .build/venv/bin/pip:
 	pyvenv .build/venv
 
-.build/venv/bin/mypy .build/venv/bin/py.test .build/venv/bin/flake8: requirements_host.txt .build/venv/bin/python
+.build/venv/bin/py.test: requirements_host.txt .build/venv/bin/python
 	.build/venv/bin/pip install -r requirements_host.txt
 
 .PHONY:
-mypy: build
-	docker-compose run --rm -e TRAVIS=$$TRAVIS wsgi scripts/check_typing.sh
+test-inside: build
+	docker-compose run --rm -e TRAVIS -e DOCKER_TAG=latest wsgi scripts/launch_inside_tests.sh
 
 .PHONY:
-test-inside: build_tests
-	docker-compose run --rm -e TRAVIS=$$TRAVIS wsgi scripts/launch_inside_tests.sh
-
-.PHONY:
-test-outside: .build/venv/bin/py.test build_tests
+test-outside: .build/venv/bin/py.test build
 	.build/venv/bin/py.test -v tests/wsgi; ERROR=$$?; [ 0 -eq $$ERROR ] || (scripts/show_logs.sh; exit $$ERROR)
 
 .PHONY:
 test: test-inside test-outside
 
 .PHONY:
-flake8: .build/venv/bin/flake8
-	# Ignore ; on same line
-	.build/venv/bin/flake8 --max-line-length=120 --ignore=E702 *.py tests c2corg_images
-
-.PHONY:
-check: flake8 mypy test
+check: test
 
 .PHONY:
 logs:
@@ -53,7 +41,7 @@ logs:
 
 .PHONY:
 enter:
-	docker exec -it v6_images_wsgi_1 bash
+	docker exec -it saccas_suissealpine_photo_wsgi_1 bash
 
 .PHONY:
 clean:
