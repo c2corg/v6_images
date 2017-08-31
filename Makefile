@@ -8,12 +8,12 @@ build:
 
 .PHONY:
 run: build
-	docker-compose up -e DOCKER_TAG=latest
+	docker-compose up
 
 .PHONY:
 latest:
 	docker pull docker.io/camptocamp/saccas_suissealpine_photo:latest
-	docker-compose -e DOCKER_TAG=latest up
+	docker-compose up
 
 .build/venv/bin/python .build/venv/bin/pip:
 	pyvenv .build/venv
@@ -23,7 +23,7 @@ latest:
 
 .PHONY:
 test-inside: build
-	docker-compose run --rm -e TRAVIS -e DOCKER_TAG=latest wsgi scripts/launch_inside_tests.sh
+	docker-compose run --rm -e TRAVIS wsgi scripts/launch_inside_tests.sh
 
 .PHONY:
 test-outside: .build/venv/bin/py.test build
