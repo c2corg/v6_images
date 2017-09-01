@@ -1,3 +1,5 @@
+import c2cwsgiutils.pyramid
+from c2cwsgiutils.health_check import HealthCheck
 from pyramid.config import Configurator
 from pyramid.renderers import JSON
 from pyramid.events import NewRequest
@@ -31,17 +33,23 @@ def add_cors_headers_response_callback(event):
         })
     event.request.add_response_callback(cors_headers)
 
-config = Configurator(route_prefix=os.environ.get('ROUTE_PREFIX', '/'))
-config.add_renderer('myjson', JSON())
 
-config.add_route('ping', '/ping')
-config.add_route('upload', '/upload')
-config.add_route('publish', '/publish')
-config.add_route('recrop', '/recrop')
-config.add_route('delete', '/delete')
-config.add_static_view(name='active', path=os.environ['ACTIVE_FOLDER'])
-config.add_subscriber(add_cors_headers_response_callback, NewRequest)
+def main(_, **settings):
+    """ This function returns a Pyramid WSGI application.
+    """
+    config = Configurator(settings=settings, route_prefix=os.environ.get('ROUTE_PREFIX', '/'))
+    config.include(c2cwsgiutils.pyramid.includeme)
+    config.add_renderer('myjson', JSON())
+    config.add_route('ping', '/ping')
+    config.add_route('upload', '/upload')
+    config.add_route('publish', '/publish')
+    config.add_route('recrop', '/recrop')
+    config.add_route('delete', '/delete')
+    config.add_static_view(name='active', path=os.environ['ACTIVE_FOLDER'])
+    config.add_subscriber(add_cors_headers_response_callback, NewRequest)
 
-config.scan()
+    HealthCheck(config)
 
-app = config.make_wsgi_app()
+    config.scan("c2corg_images")
+
+    return config.make_wsgi_app()
