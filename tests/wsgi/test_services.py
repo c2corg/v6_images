@@ -24,6 +24,15 @@ def test_upload_unsupported_image(connection, filename):
     upload_image(connection, path, expected_status=400)
 
 
+@pytest.mark.parametrize("filename", [
+    'invalid_content.jpg'
+])
+def test_upload_invalid_image(connection, filename):
+    path = os.path.join(data_folder, 'images', filename)
+    assert os.path.isfile(path)
+    upload_image(connection, path, expected_status=400)
+
+
 def test_publish_bad_secret(connection):
     connection.post('/publish',
                     data={'secret': 'bad_secret', 'filename': 'test.png'},
