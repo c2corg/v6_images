@@ -1,13 +1,13 @@
 import unittest
 from unittest.mock import patch, call
 from webtest import TestApp
-from c2corg_images import app
+from c2corg_images import main
 
 
 class TestViews(unittest.TestCase):
 
     def setUp(self):  # NOQA
-        self.app = TestApp(app)
+        self.app = TestApp(main(0))
 
     def test_publish_bad_secret(self):
         """Test publish with bad secret"""

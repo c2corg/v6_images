@@ -1,10 +1,12 @@
+GIT_HASH := $(shell git rev-parse HEAD)
+
 .PHONY:
 pull:
 	docker pull docker.io/debian:jessie
 
 .PHONY:
 build:
-	docker build -t camptocamp/saccas_suissealpine_photo:latest .
+	docker build -t camptocamp/saccas_suissealpine_photo:latest --build-arg "GIT_HASH=$(GIT_HASH)" .
 
 .PHONY:
 run: build

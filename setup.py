@@ -1,6 +1,5 @@
 from setuptools import setup, find_packages
 
-
 setup(
     name='c2corg_images',
     packages=find_packages(),
@@ -8,5 +7,7 @@ setup(
       [console_scripts]
       resize = c2corg_images.scripts.resize:Resizer.run
       migrate = c2corg_images.scripts.migrate:Migrator.run
+      [paste.app_factory]
+      main = c2corg_images:main
       """
 )
