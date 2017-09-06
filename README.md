@@ -160,5 +160,10 @@ To make a release:
   the tag to github. Make sure to do that at the same time so that Jenkins can see the tag when it builds
   the branch.
 
-We need the `release_${MAJOR_VERSION}` branch, so that Jenkins can build a new docker image for the major
+To have the int/prod tag point to another version:
+
+* Fast forward or reset the `release_int` or `release_prod` branch to the wanted version.
+* Push the branch to github.
+
+We need the `release_*` branches, so that Jenkins can build a new docker image for the major
 versions every nights.
