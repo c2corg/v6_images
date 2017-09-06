@@ -4,8 +4,11 @@ import static com.camptocamp.utils.*
 
 @NonCPS
 def getMajorRelease() {
-    def majorReleaseMatcher = (env.BRANCH_NAME =~ /^release_(\d+)$/)
-    majorReleaseMatcher.matches() ? majorReleaseMatcher[0][1] : ''
+    def numMajorReleaseMatcher = (env.BRANCH_NAME =~ /^release_(\d+)$/)
+    if (numMajorReleaseMatcher.matches()) return "v${numMajorReleaseMatcher[0][1]}"
+
+    def relMajorReleaseMatcher = (env.BRANCH_NAME =~ /^release_(int|prod)$/)
+    relMajorReleaseMatcher.matches() ? relMajorReleaseMatcher[0][1] : ''
 }
 def majorRelease = getMajorRelease()
 
@@ -74,14 +77,14 @@ dockerBuild {
     }
 
     if (majorRelease != '') {
-        stage("publish major ${majorRelease} on docker hub") {
+        stage("publish ${majorRelease} on docker hub") {
             checkout scm
             setCronTrigger('H H(0-8) * * *')
             withCredentials([[$class          : 'UsernamePasswordMultiBinding', credentialsId: 'dockerhub',
                               usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD']]) {
                 sh 'docker login -u "$USERNAME" -p "$PASSWORD"'
-                sh "docker tag camptocamp/saccas_suissealpine_photo:latest camptocamp/saccas_suissealpine_photo:v${majorRelease}"
-                sh "docker push camptocamp/saccas_suissealpine_photo:v${majorRelease}"
+                sh "docker tag camptocamp/saccas_suissealpine_photo:latest camptocamp/saccas_suissealpine_photo:${majorRelease}"
+                sh "docker push camptocamp/saccas_suissealpine_photo:${majorRelease}"
                 sh 'rm -rf ~/.docker*'
             }
         }
