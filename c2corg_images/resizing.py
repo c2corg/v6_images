@@ -3,16 +3,12 @@ import re
 from typing import Dict
 from c2corg_images import RESIZING_CONFIG
 from c2corg_images.convert import transform, rasterize_svg
+from c2cwsgiutils import stats
 
 import logging
 log = logging.getLogger(__name__)
 
 original_pattern = re.compile('(\d+_\d+)\.(\w+)')
-
-resized_patterns = []
-for config in RESIZING_CONFIG:
-    pattern = '(\d+_\d+){}\.(\w+)'.format(config['suffix'])
-    resized_patterns.append(re.compile(pattern))
 
 
 def resized_key(original, config):
@@ -29,14 +25,24 @@ def resized_keys(original):
     return keys
 
 
+def _get_size(config):
+    try:
+        convert = config['convert']
+        resize_pos = convert.index('-resize')
+        return convert[resize_pos + 1]
+    except Exception:
+        return 'unknown'
+
+
 def create_resized_image(path: str, original: str, config: Dict) -> str:
     original_path = os.path.join(path, original)
     resized = resized_key(original, config)
     resized_path = os.path.join(path, resized)
     log.info('Creating resized image %s', resized_path)
-    transform(original_path,
-              resized_path,
-              config['convert'])
+    with stats.timer_context(['transform', 'resize', _get_size(config)]):
+        transform(original_path,
+                  resized_path,
+                  config['convert'])
     return resized
 
 
@@ -46,7 +52,8 @@ def create_resized_images(path, key):
     if ext == '.svg':
         svg_key = key
         jpg_key = '{}{}'.format(base, '.jpg')
-        rasterize_svg(os.path.join(path, svg_key), os.path.join(path, jpg_key))
+        with stats.timer_context(['transform', 'rasterize_svg']):
+            rasterize_svg(os.path.join(path, svg_key), os.path.join(path, jpg_key))
         raster_file = os.path.join(path, jpg_key)
         key = jpg_key
 

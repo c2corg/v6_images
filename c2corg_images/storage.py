@@ -5,6 +5,7 @@ import threading
 import boto3
 import botocore
 import mimetypes
+from c2cwsgiutils import stats
 
 import logging
 log = logging.getLogger(__name__)
@@ -95,20 +96,21 @@ class S3Storage(BaseStorage):
 
     def exists(self, key):
         try:
-            object = self.object(key)
-            object.load()
+            with stats.timer_context(['storage', 's3', 'exists']):
+                object = self.object(key)
+                object.load()
 
-            mimetype = mimetypes.guess_type(key)[0]
-            if object.content_type != mimetype:
-                object.copy_from(
-                    ACL=self.default_acl,
-                    ContentType=mimetype,
-                    CopySource={
-                        'Bucket': self._bucket_name,
-                        'Key': key
-                    }
-                )
-            return True
+                mimetype = mimetypes.guess_type(key)[0]
+                if object.content_type != mimetype:
+                    object.copy_from(
+                        ACL=self.default_acl,
+                        ContentType=mimetype,
+                        CopySource={
+                            'Bucket': self._bucket_name,
+                            'Key': key
+                        }
+                    )
+                return True
 
         except botocore.exceptions.ClientError as e:
             if e.response['Error']['Code'] == "404":
@@ -118,40 +120,46 @@ class S3Storage(BaseStorage):
         return True
 
     def get(self, key, path):
-        self.object(key).download_file(path)
+        with stats.timer_context(['storage', 's3', 'get']):
+            self.object(key).download_file(path)
 
     def put(self, key, path):
         with open(path, 'rb') as file:
-            self.bucket().put_object(
-                ACL=self.default_acl,
-                Body=file,
-                ContentType=mimetypes.guess_type(key)[0],
-                Key=key)
+            with stats.timer_context(['storage', 's3', 'put']):
+                self.bucket().put_object(
+                    ACL=self.default_acl,
+                    Body=file,
+                    ContentType=mimetypes.guess_type(key)[0],
+                    Key=key)
 
     def delete(self, key):
-        self.object(key).delete()
+        with stats.timer_context(['storage', 's3', 'delete']):
+            self.object(key).delete()
 
     def copy(self, key, other_storage):
-        if isinstance(other_storage, S3Storage):
-            new_object = other_storage.object(key)
-            new_object.copy_from(
-                ACL=other_storage.default_acl,
-                ContentType=mimetypes.guess_type(key)[0],
-                CopySource={
-                    'Bucket': self._bucket_name,
-                    'Key': key})
-        elif isinstance(other_storage, LocalStorage):
-            path = os.path.join(other_storage.path(), key)
-            self.get(key, path)
-        else:
-            raise NotImplementedError()
+        with stats.timer_context(['storage', 's3', 'copy']):
+            if isinstance(other_storage, S3Storage):
+                new_object = other_storage.object(key)
+                new_object.copy_from(
+                    ACL=other_storage.default_acl,
+                    ContentType=mimetypes.guess_type(key)[0],
+                    CopySource={
+                        'Bucket': self._bucket_name,
+                        'Key': key})
+            elif isinstance(other_storage, LocalStorage):
+                path = os.path.join(other_storage.path(), key)
+                self.get(key, path)
+            else:
+                raise NotImplementedError()
 
     def move(self, key, other_storage):
-        self.copy(key, other_storage)
-        self.delete(key)
+        with stats.timer_context(['storage', 's3', 'move']):
+            self.copy(key, other_storage)
+            self.delete(key)
 
     def last_modified(self, key):
-        return self.object(key).last_modified
+        with stats.timer_context(['storage', 's3', 'last_modified']):
+            return self.object(key).last_modified
 
 
 class LocalStorage(BaseStorage):
