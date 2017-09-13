@@ -9,6 +9,8 @@ from pyramid.httpexceptions import HTTPForbidden, HTTPBadRequest
 
 from wand.image import Image
 
+from c2cwsgiutils import stats
+
 from c2corg_images.cropping import create_cropped_image
 from c2corg_images.resizing import create_resized_images, resized_keys
 from c2corg_images.storage import temp_storage, incoming_storage, active_storage
@@ -28,8 +30,9 @@ def get_format(path: str, filename: str) -> str:
     if ext.upper() == '.SVG':
         return 'SVG'
 
-    with Image(filename=path) as image:
-        return image.format
+    with stats.timer_context(['upload', 'get_format']):
+        with Image(filename=path) as image:
+            return image.format
 
 
 epoch = datetime(1970, 1, 1)
@@ -67,10 +70,11 @@ def upload(request):
     log.debug('%s - received upload request', pre_key)
     # Store the original image as raw file
     raw_file = '%s/%s_raw' % (temp_storage.path(), pre_key)
-    input_file.seek(0)
-    with open(raw_file, 'wb') as output_file:
-        shutil.copyfileobj(input_file, output_file)
-        log.debug('%s - copied raw file to %s', pre_key, output_file)
+    with stats.timer_context(['upload', 'read']):
+        input_file.seek(0)
+        with open(raw_file, 'wb') as output_file:
+            shutil.copyfileobj(input_file, output_file)
+            log.debug('%s - copied raw file to %s', pre_key, output_file)
 
     try:
         kind = get_format(raw_file, request.POST['file'].filename)
