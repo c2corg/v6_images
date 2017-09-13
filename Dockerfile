@@ -1,55 +1,46 @@
-FROM docker.io/debian:jessie
+FROM camptocamp/c2cwsgiutils:0
 
 ENV DEBIAN_FRONTEND noninteractive
 
 RUN echo 'APT::Install-Recommends "0";' > /etc/apt/apt.conf.d/50no-install-recommends
 RUN echo 'APT::Install-Suggests "0";' > /etc/apt/apt.conf.d/50no-install-suggests
 
-WORKDIR /var/www/
+WORKDIR /app
 
-COPY requirements.txt ./
-COPY requirements_pip.txt ./
-COPY setup.py ./
-COPY logging.conf ./
-COPY c2corg_images c2corg_images
+COPY requirements.txt setup.py ./
 
 RUN set -x \
  && apt-get update \
- && apt-get -y upgrade \
  && apt-get install -y \
-    python3 \
     ca-certificates \
     imagemagick \
     jpegoptim \
-    python3-wand \
     optipng \
     librsvg2-bin \
-    python3-pip \
-    libpq5 \
-    libpq-dev \
-    python3-dev \
-    gcc \
- && pip3 install -r requirements_pip.txt \
- && pip -V \
- && pip  install -r requirements.txt \
- && pip  install . \
- && py3compile -f . \
+ && pip install --no-cache-dir -r requirements.txt \
  && rm -fr .cache \
- && apt-get -y purge \
-    python3-dev \
-    libpq-dev \
-    gcc \
  && apt-get -y --purge autoremove \
  && apt-get clean \
  && rm -rf /var/lib/apt/lists/*
 
-COPY scripts scripts
-COPY tests tests
+COPY . /app
+
+ARG GIT_HASH
+
+RUN pip install -e . \
+ && flake8 --max-line-length=120 --ignore=E702 *.py tests c2corg_images \
+ && scripts/check_typing.sh \
+ && c2cwsgiutils_genversion.py $GIT_HASH \
+ && mv docker-entrypoint.* /
 
 EXPOSE 8080
-
-COPY /docker-entrypoint.sh /
-COPY /docker-entrypoint.d/* /docker-entrypoint.d/
 ENTRYPOINT ["/docker-entrypoint.sh"]
 
-CMD ["gunicorn", "-w", "4", "-u", "www-data", "-g", "www-data", "-b", "0.0.0.0:8080", "c2corg_images:app"]
+ENV C2CORG_IMAGES_LOG_LEVEL=INFO \
+    C2CWSGI_LOG_LEVEL=INFO \
+    TEMP_FOLDER=/tmp/temp \
+    INCOMING_FOLDER=/tmp/incoming \
+    ACTIVE_FOLDER=/tmp/active \
+    GUNICORN_PARAMS="-b :8080 --worker-class gthread --threads 10 --workers 5"
+
+CMD ["c2cwsgiutils_run"]

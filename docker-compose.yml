@@ -1,14 +1,14 @@
 #A compose file for integration tests and development
 wsgi:
   container_name: c2corg_images_test
-  image: c2corg/v6_images:latest
+  image: camptocamp/saccas_suissealpine_photo:latest
   environment:
     STORAGE_BACKEND: local  # local or s3
 
-    TEMP_FOLDER: /var/www/temp
-    INCOMING_FOLDER: /var/www/incoming
-    ACTIVE_FOLDER: /var/www/active
-    V5_FOLDER: /var/www/tests/data/v5_images
+    TEMP_FOLDER: /tmp/temp
+    INCOMING_FOLDER: /tmp/incoming
+    ACTIVE_FOLDER: /tmp/active
+    V5_FOLDER: /tmp/tests/data/v5_images
 
     API_SECRET_KEY: good_secret
 
@@ -22,9 +22,12 @@ wsgi:
     AWS_DEFAULT_REGION: eu-west-1
     AWS_ACCESS_KEY_ID:
     AWS_SECRET_ACCESS_KEY:
+    S3_SIGNATURE_VERSION: s3v4
 
     EXO_ACCESS_KEY_ID:
     EXO_SECRET_KEY:
+
+    ROUTE_PREFIX: /
 
   cap_add:
     - NET_BIND_SERVICE
