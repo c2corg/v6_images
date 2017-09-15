@@ -64,13 +64,13 @@ def upload_options(request):
 
 @view_config(route_name='upload', renderer='json')
 def upload(request):
-    input_file = request.POST['file'].file
     pre_key = create_pseudo_unique_key()
 
     log.debug('%s - received upload request', pre_key)
     # Store the original image as raw file
     raw_file = '%s/%s_raw' % (temp_storage.path(), pre_key)
     with stats.timer_context(['upload', 'read']):
+        input_file = request.POST['file'].file
         input_file.seek(0)
         with open(raw_file, 'wb') as output_file:
             shutil.copyfileobj(input_file, output_file)
