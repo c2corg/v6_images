@@ -57,7 +57,7 @@ dockerBuild {
                               usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD']]) {
                 sh 'docker login -u "$USERNAME" -p "$PASSWORD"'
                 for (String tag: tags) {
-                    sh "docker tag camptocamp/saccas_suissealpine_photo:latest camptocamp/saccas_suissealpine_photo:${tag}"
+                    sh "docker tag c2corg/v6_images:latest camptocamp/saccas_suissealpine_photo:${tag}"
                     sh "docker push camptocamp/saccas_suissealpine_photo:${tag}"
                 }
                 sh 'rm -rf ~/.docker*'
@@ -70,6 +70,7 @@ dockerBuild {
             withCredentials([[$class          : 'UsernamePasswordMultiBinding', credentialsId: 'dockerhub',
                               usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD']]) {
                 sh 'docker login -u "$USERNAME" -p "$PASSWORD"'
+                sh "docker tag c2corg/v6_images:latest camptocamp/saccas_suissealpine_photo:latest"
                 sh 'docker push camptocamp/saccas_suissealpine_photo:latest'
                 sh 'rm -rf ~/.docker*'
             }
@@ -83,7 +84,7 @@ dockerBuild {
             withCredentials([[$class          : 'UsernamePasswordMultiBinding', credentialsId: 'dockerhub',
                               usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD']]) {
                 sh 'docker login -u "$USERNAME" -p "$PASSWORD"'
-                sh "docker tag camptocamp/saccas_suissealpine_photo:latest camptocamp/saccas_suissealpine_photo:${majorRelease}"
+                sh "docker tag c2corg/v6_images:latest camptocamp/saccas_suissealpine_photo:${majorRelease}"
                 sh "docker push camptocamp/saccas_suissealpine_photo:${majorRelease}"
                 sh 'rm -rf ~/.docker*'
             }

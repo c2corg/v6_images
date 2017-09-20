@@ -6,7 +6,7 @@ pull:
 
 .PHONY:
 build:
-	docker build -t camptocamp/saccas_suissealpine_photo:latest --build-arg "GIT_HASH=$(GIT_HASH)" .
+	docker build -t c2corg/v6_images:latest --build-arg "GIT_HASH=$(GIT_HASH)" .
 
 .PHONY:
 run: build
@@ -14,7 +14,7 @@ run: build
 
 .PHONY:
 latest:
-	docker pull docker.io/camptocamp/saccas_suissealpine_photo:latest
+	docker pull docker.io/c2corg/v6_images:latest
 	docker-compose up
 
 .build/venv/bin/python .build/venv/bin/pip:
@@ -43,7 +43,7 @@ logs:
 
 .PHONY:
 enter:
-	docker exec -it saccas_suissealpine_photo_wsgi_1 bash
+	docker exec -it v6_images_wsgi_1 bash
 
 .PHONY:
 clean:
