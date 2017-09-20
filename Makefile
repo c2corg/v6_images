@@ -18,7 +18,7 @@ latest:
 	docker-compose up
 
 .build/venv/bin/python .build/venv/bin/pip:
-	pyvenv .build/venv
+	python3 -m venv .build/venv
 
 .build/venv/bin/py.test: requirements_host.txt .build/venv/bin/python
 	.build/venv/bin/pip install -r requirements_host.txt
