@@ -26,6 +26,7 @@ RUN set -x \
 COPY . /app
 
 ARG GIT_HASH
+ENV GIT_HASH=$GIT_HASH
 
 RUN pip install -e . \
  && flake8 --max-line-length=120 --ignore=E702 *.py tests c2corg_images \

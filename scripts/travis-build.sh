@@ -1,4 +1,5 @@
 #!/bin/sh -e
+GIT_HASH=`git rev-parse HEAD`
 
 REPO="c2corg/v6_images"
 
@@ -22,6 +23,6 @@ else
 fi
 
 echo "Building docker image '${DOCKER_IMAGE}' out of ${DOCKER_SOURCE}"
-docker build -t "${DOCKER_IMAGE}" .
+docker build -t "${DOCKER_IMAGE}" --build-arg "GIT_HASH=${GIT_HASH}" .
 docker inspect "${DOCKER_IMAGE}"
 docker history "${DOCKER_IMAGE}"
