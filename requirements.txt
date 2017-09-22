@@ -4,3 +4,7 @@ mypy-lang==0.4.1
 Pillow==4.1.0
 wand==0.4.4
 WebTest==2.0.20
+eventlet==0.20.0
+gevent==1.2a2
+gaiohttp-websocket==0.1.1
+aiohttp-wsgi==0.7.0
