@@ -8,3 +8,4 @@ eventlet==0.20.0
 gevent==1.2a2
 gaiohttp-websocket==0.1.1
 aiohttp-wsgi==0.7.0
+python-json-logger==0.1.8
