@@ -1,7 +1,6 @@
 import c2cwsgiutils.pyramid
 from c2cwsgiutils.health_check import HealthCheck
 from pyramid.config import Configurator
-from pyramid.renderers import JSON
 from pyramid.events import NewRequest
 import os
 import json
@@ -39,7 +38,6 @@ def main(_, **settings):
     """
     config = Configurator(settings=settings, route_prefix=os.environ.get('ROUTE_PREFIX', '/'))
     config.include(c2cwsgiutils.pyramid.includeme)
-    config.add_renderer('myjson', JSON())
     config.add_route('ping', '/ping')
     config.add_route('upload', '/upload')
     config.add_route('publish', '/publish')
