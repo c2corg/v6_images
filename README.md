@@ -58,10 +58,16 @@ Configuration should be set by environment variables:
 
 *PREFIX_*``SECRET_KEY``: Secret key for corresponding prefix.
 
+``S3_SIGNATURE_VERSION``: S3 signature version ('s3' or 's3v4'), see [docs](https://botocore.readthedocs.io/en/stable/reference/config.html#botocore.config.Config).
+
 ``API_SECRET_KEY``: API secret key, needed to publish images on the active
 bucket.
 
 ``V5_DATABASE_URL``: Address of the V5 database for the migration script.
+
+``ROUTE_PREFIX``: Path prefix for serving the photo backend API. 
+
+``RESIZING_CONFIG``: Configuration of the thumbnail names and sizes serialized in JSON. See c2corg\_images/__init__.py for a description of the format. 
 
 Here is an example configuration with S3 backend on exoscale:
 
@@ -139,3 +145,25 @@ To regenerate the *resized* images:
 ``docker-compose exec images resize``
 
 ``docker-compose exec images resize --help`` to get options list.
+
+
+Release on docker hub
+---------------------
+
+The project is built by Jenkins.
+
+To make a release:
+
+* Commit and push to master.
+* Tag the GIT commit.
+* Rebase the `release_${MAJOR_VERSION}` branch to this commit and push the `release_${MAJOR_VERSION}` and
+  the tag to github. Make sure to do that at the same time so that Jenkins can see the tag when it builds
+  the branch.
+
+To have the int/prod tag point to another version:
+
+* Fast forward or reset the `release_int` or `release_prod` branch to the wanted version.
+* Push the branch to github.
+
+We need the `release_*` branches, so that Jenkins can build a new docker image for the major
+versions every nights.

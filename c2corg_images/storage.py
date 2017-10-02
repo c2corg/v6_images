@@ -5,6 +5,7 @@ import threading
 import boto3
 import botocore
 import mimetypes
+from c2cwsgiutils import stats
 
 import logging
 log = logging.getLogger(__name__)
@@ -12,6 +13,8 @@ log = logging.getLogger(__name__)
 
 EXPIRE_HOURS = 2
 PAGE_SIZE = 1000
+S3_SIGNATURE_VERSION = os.environ.get('S3_SIGNATURE_VERSION', 's3v4')
+S3_CONFIG = botocore.config.Config(signature_version=S3_SIGNATURE_VERSION)
 
 
 thread_data = threading.local()
@@ -67,7 +70,7 @@ class S3Storage(BaseStorage):
     def resource(self):
         if self._endpoint_url not in resources():
             if self._endpoint_url is None:
-                resource = session().resource('s3')
+                resource = session().resource('s3', config=S3_CONFIG)
             else:
                 resource = session().resource(
                     service_name='s3',
@@ -93,20 +96,21 @@ class S3Storage(BaseStorage):
 
     def exists(self, key):
         try:
-            object = self.object(key)
-            object.load()
+            with stats.timer_context(['storage', 's3', 'exists']):
+                object = self.object(key)
+                object.load()
 
-            mimetype = mimetypes.guess_type(key)[0]
-            if object.content_type != mimetype:
-                object.copy_from(
-                    ACL=self.default_acl,
-                    ContentType=mimetype,
-                    CopySource={
-                        'Bucket': self._bucket_name,
-                        'Key': key
-                    }
-                )
-            return True
+                mimetype = mimetypes.guess_type(key)[0]
+                if object.content_type != mimetype:
+                    object.copy_from(
+                        ACL=self.default_acl,
+                        ContentType=mimetype,
+                        CopySource={
+                            'Bucket': self._bucket_name,
+                            'Key': key
+                        }
+                    )
+                return True
 
         except botocore.exceptions.ClientError as e:
             if e.response['Error']['Code'] == "404":
@@ -116,40 +120,46 @@ class S3Storage(BaseStorage):
         return True
 
     def get(self, key, path):
-        self.object(key).download_file(path)
+        with stats.timer_context(['storage', 's3', 'get']):
+            self.object(key).download_file(path)
 
     def put(self, key, path):
         with open(path, 'rb') as file:
-            self.bucket().put_object(
-                ACL=self.default_acl,
-                Body=file,
-                ContentType=mimetypes.guess_type(key)[0],
-                Key=key)
+            with stats.timer_context(['storage', 's3', 'put']):
+                self.bucket().put_object(
+                    ACL=self.default_acl,
+                    Body=file,
+                    ContentType=mimetypes.guess_type(key)[0],
+                    Key=key)
 
     def delete(self, key):
-        self.object(key).delete()
+        with stats.timer_context(['storage', 's3', 'delete']):
+            self.object(key).delete()
 
     def copy(self, key, other_storage):
-        if isinstance(other_storage, S3Storage):
-            new_object = other_storage.object(key)
-            new_object.copy_from(
-                ACL=other_storage.default_acl,
-                ContentType=mimetypes.guess_type(key)[0],
-                CopySource={
-                    'Bucket': self._bucket_name,
-                    'Key': key})
-        elif isinstance(other_storage, LocalStorage):
-            path = os.path.join(other_storage.path(), key)
-            self.get(key, path)
-        else:
-            raise NotImplementedError()
+        with stats.timer_context(['storage', 's3', 'copy']):
+            if isinstance(other_storage, S3Storage):
+                new_object = other_storage.object(key)
+                new_object.copy_from(
+                    ACL=other_storage.default_acl,
+                    ContentType=mimetypes.guess_type(key)[0],
+                    CopySource={
+                        'Bucket': self._bucket_name,
+                        'Key': key})
+            elif isinstance(other_storage, LocalStorage):
+                path = os.path.join(other_storage.path(), key)
+                self.get(key, path)
+            else:
+                raise NotImplementedError()
 
     def move(self, key, other_storage):
-        self.copy(key, other_storage)
-        self.delete(key)
+        with stats.timer_context(['storage', 's3', 'move']):
+            self.copy(key, other_storage)
+            self.delete(key)
 
     def last_modified(self, key):
-        return self.object(key).last_modified
+        with stats.timer_context(['storage', 's3', 'last_modified']):
+            return self.object(key).last_modified
 
 
 class LocalStorage(BaseStorage):
@@ -208,9 +218,7 @@ def getS3Params(prefix):
     PREFIX = os.environ.get("{}_PREFIX".format(prefix), False)
     if PREFIX:
         params['endpoint_url'] = os.environ.get("{}_ENDPOINT".format(PREFIX), False)
-        params['config'] = botocore.config.Config(
-            signature_version='s3'
-        )
+        params['config'] = S3_CONFIG
         params['aws_access_key_id'] = os.environ.get("{}_ACCESS_KEY_ID".format(PREFIX))
         params['aws_secret_access_key'] = os.environ.get("{}_SECRET_KEY".format(PREFIX))
 

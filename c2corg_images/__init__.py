@@ -1,18 +1,25 @@
+import c2cwsgiutils.pyramid
+from c2cwsgiutils.health_check import HealthCheck
 from pyramid.config import Configurator
-from pyramid.renderers import JSON
 from pyramid.events import NewRequest
 import os
+import json
 
-RESIZING_CONFIG = [
-    {'suffix': 'BI', 'convert': ['-resize', '1500x1500>',
-                                 '-quality', '90']},
-    {'suffix': 'MI', 'convert': ['-resize', '400x400>',
-                                 '-quality', '90']},
-    {'suffix': 'SI', 'convert': ['-resize', '200x200^',
-                                 '-gravity', 'center',
-                                 '-extent', '200x200',
-                                 '-quality', '90']}
-]
+
+def parse_resizing_config(serialized_config):
+    if serialized_config is not None:
+        return json.loads(serialized_config)
+    else:
+        # See documentation at http://www.imagemagick.org/Usage/resize
+        return [
+            {'suffix': 'BI', 'convert': ['-resize', '1500x1500>', '-quality', '90']},
+            {'suffix': 'MI', 'convert': ['-resize', '400x400>', '-quality', '90']},
+            {'suffix': 'SI', 'convert': ['-resize', '200x200^', '-gravity', 'center',
+                                         '-extent', '200x200', '-quality', '90']}
+        ]
+
+
+RESIZING_CONFIG = parse_resizing_config(os.environ.get('RESIZING_CONFIG', None))
 
 
 def add_cors_headers_response_callback(event):
@@ -25,16 +32,22 @@ def add_cors_headers_response_callback(event):
         })
     event.request.add_response_callback(cors_headers)
 
-config = Configurator()
-config.add_renderer('myjson', JSON())
 
-config.add_route('ping', '/ping')
-config.add_route('upload', '/upload')
-config.add_route('publish', '/publish')
-config.add_route('delete', '/delete')
-config.add_static_view(name='active', path=os.environ['ACTIVE_FOLDER'])
-config.add_subscriber(add_cors_headers_response_callback, NewRequest)
+def main(_, **settings):
+    """ This function returns a Pyramid WSGI application.
+    """
+    config = Configurator(settings=settings, route_prefix=os.environ.get('ROUTE_PREFIX', '/'))
+    config.include(c2cwsgiutils.pyramid.includeme)
+    config.add_route('ping', '/ping')
+    config.add_route('upload', '/upload')
+    config.add_route('publish', '/publish')
+    config.add_route('recrop', '/recrop')
+    config.add_route('delete', '/delete')
+    config.add_static_view(name='active', path=os.environ['ACTIVE_FOLDER'])
+    config.add_subscriber(add_cors_headers_response_callback, NewRequest)
 
-config.scan()
+    HealthCheck(config)
 
-app = config.make_wsgi_app()
+    config.scan("c2corg_images")
+
+    return config.make_wsgi_app()
