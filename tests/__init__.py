@@ -45,7 +45,7 @@ def wait_wsgi():
             if r.status_code == 200 or r.status_code == 404:
                 LOG.info("WSGI service started")
                 break
-        except:
+        except Exception:
             pass
         if time.time() > timeout:
             assert False, "Timeout"
