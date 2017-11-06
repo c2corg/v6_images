@@ -1,8 +1,10 @@
 GIT_HASH := $(shell git rev-parse HEAD)
 
+all: build test
+
 .PHONY:
 pull:
-	docker pull docker.io/debian:jessie
+	for image in `find -name Dockerfile | xargs grep --no-filename FROM | awk '{print $$2}' | sort -u`; do docker pull $$image; done
 
 .PHONY:
 build:
