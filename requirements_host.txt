@@ -1,1 +1,1 @@
-c2cwsgiutils>0,<1
+c2cwsgiutils>=1,<2
