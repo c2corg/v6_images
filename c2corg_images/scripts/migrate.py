@@ -142,19 +142,17 @@ LIMIT {} OFFSET {};
         success = False
         while tries > 0 and not success:
             try:
-                r = requests.get('http://s.camptocamp.org/uploads/images/{}'.
-                                 format(key),
-                                 stream=True,
-                                 timeout=120)
-                if r.status_code != 200:
-                    log.error("{} return status code {} - {}".
-                              format(key, r.status_code, r.reason))
-                    with self.lock:
-                        self.errors += 1
-                    return
-                with open(temp_storage.object_path(key), 'wb') as fd:
-                    for chunk in r.iter_content(None):
-                        fd.write(chunk)
+                with requests.get('http://s.camptocamp.org/uploads/images/{}'.format(key),
+                                  stream=True, timeout=120) as r:
+                    if r.status_code != 200:
+                        log.error("{} return status code {} - {}".
+                                  format(key, r.status_code, r.reason))
+                        with self.lock:
+                            self.errors += 1
+                        return
+                    with open(temp_storage.object_path(key), 'wb') as fd:
+                        for chunk in r.iter_content(None):
+                            fd.write(chunk)
                 success = True
             except Exception as e:
                 tries -= 1
