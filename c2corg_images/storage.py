@@ -61,10 +61,11 @@ class BaseStorage():
 
 class S3Storage(BaseStorage):
 
-    def __init__(self, bucket_name, params={}, default_acl=None):
+    def __init__(self, bucket_name, params={}, default_acl=None, should_expire=None):
         self._bucket_name = bucket_name
         self._params = params
         self._endpoint_url = self._params.get('endpoint_url', None)
+        self._should_expire = should_expire
         self.default_acl = default_acl
 
     def resource(self):
@@ -125,12 +126,18 @@ class S3Storage(BaseStorage):
 
     def put(self, key, path):
         with open(path, 'rb') as file:
+            kwargs = {}
+            if self._should_expire:
+                now = datetime.datetime.now()
+                expires = now + datetime.timedelta(hours=EXPIRE_HOURS)
+                kwargs['Expires'] = expires
             with stats.timer_context(['storage', 's3', 'put']):
                 self.bucket().put_object(
                     ACL=self.default_acl,
                     Body=file,
                     ContentType=mimetypes.guess_type(key)[0],
-                    Key=key)
+                    Key=key,
+                    **kwargs)
 
     def delete(self, key):
         with stats.timer_context(['storage', 's3', 'delete']):
@@ -230,7 +237,8 @@ active_storage = None  # type: BaseStorage
 if os.environ['STORAGE_BACKEND'] == 's3':
     incoming_storage = S3Storage(os.environ['INCOMING_BUCKET'],
                                  getS3Params('INCOMING'),
-                                 default_acl='private')
+                                 default_acl='private',
+                                 should_expire=True)
     active_storage = S3Storage(os.environ['ACTIVE_BUCKET'],
                                getS3Params('ACTIVE'),
                                default_acl='public-read')
