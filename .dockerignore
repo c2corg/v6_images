@@ -3,3 +3,6 @@
 .gitignore
 Dockerfile
 .travis.yml
+.cache
+.pytest_cache
+tests/__pycache__

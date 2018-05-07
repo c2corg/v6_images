@@ -79,7 +79,7 @@ def upload(request):
     try:
         kind = get_format(raw_file, request.POST['file'].filename)
         log.debug('%s - detected format is %s', pre_key, kind)
-    except:
+    except Exception:
         raise HTTPBadRequest('Bad format for %s' % request.POST['file'].filename)
 
     if kind == 'JPEG':

@@ -1,8 +1,10 @@
 GIT_HASH := $(shell git rev-parse HEAD)
 
+all: build test
+
 .PHONY:
 pull:
-	docker pull docker.io/debian:jessie
+	for image in `find -name Dockerfile | xargs grep --no-filename FROM | awk '{print $$2}' | sort -u`; do docker pull $$image; done
 
 .PHONY:
 build:
@@ -20,8 +22,8 @@ latest:
 .build/venv/bin/python .build/venv/bin/pip:
 	python3 -m venv .build/venv
 
-.build/venv/bin/py.test: requirements_host.txt .build/venv/bin/python
-	.build/venv/bin/pip install -r requirements_host.txt
+.build/venv/bin/py.test: requirements_host.txt requirements.txt .build/venv/bin/python
+	.build/venv/bin/pip install -r requirements_host.txt -r requirements.txt
 
 .PHONY:
 test-inside: build

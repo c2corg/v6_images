@@ -6,6 +6,7 @@ import boto3
 import botocore
 import mimetypes
 from c2cwsgiutils import stats
+import typing  # noqa
 
 import logging
 log = logging.getLogger(__name__)
@@ -61,10 +62,11 @@ class BaseStorage():
 
 class S3Storage(BaseStorage):
 
-    def __init__(self, bucket_name, params={}, default_acl=None):
+    def __init__(self, bucket_name, params={}, default_acl=None, should_expire=None):
         self._bucket_name = bucket_name
         self._params = params
         self._endpoint_url = self._params.get('endpoint_url', None)
+        self._should_expire = should_expire
         self.default_acl = default_acl
 
     def resource(self):
@@ -125,12 +127,18 @@ class S3Storage(BaseStorage):
 
     def put(self, key, path):
         with open(path, 'rb') as file:
+            kwargs = {}
+            if self._should_expire:
+                now = datetime.datetime.now()
+                expires = now + datetime.timedelta(hours=EXPIRE_HOURS)
+                kwargs['Expires'] = expires
             with stats.timer_context(['storage', 's3', 'put']):
                 self.bucket().put_object(
                     ACL=self.default_acl,
                     Body=file,
                     ContentType=mimetypes.guess_type(key)[0],
-                    Key=key)
+                    Key=key,
+                    **kwargs)
 
     def delete(self, key):
         with stats.timer_context(['storage', 's3', 'delete']):
@@ -225,12 +233,13 @@ def getS3Params(prefix):
     return params
 
 
-incoming_storage = None  # type: BaseStorage
-active_storage = None  # type: BaseStorage
+incoming_storage = None  # type: typing.Optional[BaseStorage]
+active_storage = None  # type: typing.Optional[BaseStorage]
 if os.environ['STORAGE_BACKEND'] == 's3':
     incoming_storage = S3Storage(os.environ['INCOMING_BUCKET'],
                                  getS3Params('INCOMING'),
-                                 default_acl='private')
+                                 default_acl='private',
+                                 should_expire=True)
     active_storage = S3Storage(os.environ['ACTIVE_BUCKET'],
                                getS3Params('ACTIVE'),
                                default_acl='public-read')

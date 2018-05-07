@@ -80,7 +80,8 @@ class S3StorageTest(BaseStorageTest):
     def setUp(self):  # NOQA
         self.incoming_storage = S3Storage(os.environ['INCOMING_BUCKET'],
                                           getS3Params('INCOMING'),
-                                          default_acl='private')
+                                          default_acl='private',
+                                          should_expire=True)
         self.active_storage = S3Storage(os.environ['ACTIVE_BUCKET'],
                                         getS3Params('ACTIVE'),
                                         default_acl='public-read')
