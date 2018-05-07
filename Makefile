@@ -22,8 +22,8 @@ latest:
 .build/venv/bin/python .build/venv/bin/pip:
 	python3 -m venv .build/venv
 
-.build/venv/bin/py.test: requirements_host.txt .build/venv/bin/python
-	.build/venv/bin/pip install -r requirements_host.txt
+.build/venv/bin/py.test: requirements_host.txt requirements.txt .build/venv/bin/python
+	.build/venv/bin/pip install -r requirements_host.txt -r requirements.txt
 
 .PHONY:
 test-inside: build
