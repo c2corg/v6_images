@@ -27,7 +27,13 @@ latest:
 
 .PHONY:
 test-inside: build
-	docker-compose run --rm -e TRAVIS wsgi scripts/launch_inside_tests.sh
+	docker run --rm -v $$PWD/data:/data c2corg/v6_images:latest rm -rf /data/incoming/* /data/active/* /data/.minio.sys/format.json /data/.minio.sys/multipart  /data/.minio.sys/tmp
+	docker-compose stop || true
+	docker-compose rm -f || true
+	docker-compose run --rm wsgi scripts/launch_inside_tests.sh
+	docker-compose stop || true
+	docker-compose rm -f || true
+	docker run --rm -v $$PWD/data:/data c2corg/v6_images:latest rm -rf /data/incoming/* /data/active/* /data/.minio.sys/format.json /data/.minio.sys/multipart  /data/.minio.sys/tmp
 
 .PHONY:
 test-outside: .build/venv/bin/py.test build

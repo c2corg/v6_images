@@ -4,7 +4,7 @@ import requests
 from c2corg_images.storage import (
     S3Storage, LocalStorage, temp_storage, getS3Params)
 
-from tests import utils, data_folder
+from tests import data_folder
 
 import logging
 logging.getLogger('boto3').setLevel(logging.CRITICAL)
@@ -86,11 +86,9 @@ class S3StorageTest(BaseStorageTest):
                                         getS3Params('ACTIVE'),
                                         default_acl='public-read')
 
-    @utils.skipIfTravis
     def test_standard_protocol(self):
         super(S3StorageTest, self).standard_protocol()
 
-    @utils.skipIfTravis
     def test_resizing_protocol(self):
         super(S3StorageTest, self).resizing_protocol()
 

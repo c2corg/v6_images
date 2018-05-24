@@ -6,3 +6,4 @@ Dockerfile
 .cache
 .pytest_cache
 tests/__pycache__
+data
