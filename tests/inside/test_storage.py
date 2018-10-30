@@ -47,6 +47,7 @@ class BaseStorageTest(unittest.TestCase):
             r = requests.get(url, stream=True, timeout=120)
             assert r.status_code == 200
             assert r.headers['content-type'] == 'image/png'
+            assert r.headers['cache-control'] == 'public, max-age=3600'
 
         # cleaning
         self.active_storage.delete(key)

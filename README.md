@@ -69,6 +69,8 @@ bucket.
 
 ``RESIZING_CONFIG``: Configuration of the thumbnail names and sizes serialized in JSON. See c2corg\_images/__init__.py for a description of the format. 
 
+``CACHE_CONTROL``: Cache-Control value to be set to all the images uploaded to s3. Default is `public, max-age=3600`.
+
 Here is an example configuration with S3 backend on exoscale:
 
 ```

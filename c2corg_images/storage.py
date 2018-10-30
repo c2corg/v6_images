@@ -14,6 +14,7 @@ log = logging.getLogger(__name__)
 
 EXPIRE_HOURS = 2
 PAGE_SIZE = 1000
+CACHE_CONTROL = os.environ.get('CACHE_CONTROL', 'public, max-age=3600')
 S3_SIGNATURE_VERSION = os.environ.get('S3_SIGNATURE_VERSION', 's3v4')
 S3_CONFIG = botocore.config.Config(signature_version=S3_SIGNATURE_VERSION)
 
@@ -107,6 +108,7 @@ class S3Storage(BaseStorage):
                     object.copy_from(
                         ACL=self.default_acl,
                         ContentType=mimetype,
+                        CacheControl=CACHE_CONTROL,
                         CopySource={
                             'Bucket': self._bucket_name,
                             'Key': key
@@ -137,6 +139,7 @@ class S3Storage(BaseStorage):
                     ACL=self.default_acl,
                     Body=file,
                     ContentType=mimetypes.guess_type(key)[0],
+                    CacheControl=CACHE_CONTROL,
                     Key=key,
                     **kwargs)
 
@@ -151,6 +154,7 @@ class S3Storage(BaseStorage):
                 new_object.copy_from(
                     ACL=other_storage.default_acl,
                     ContentType=mimetypes.guess_type(key)[0],
+                    CacheControl=CACHE_CONTROL,
                     CopySource={
                         'Bucket': self._bucket_name,
                         'Key': key})
