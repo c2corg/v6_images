@@ -1,4 +1,4 @@
-FROM camptocamp/c2cwsgiutils:2
+FROM camptocamp/c2cwsgiutils:2-light
 
 ENV DEBIAN_FRONTEND noninteractive
 
@@ -30,7 +30,7 @@ COPY . /app
 ARG GIT_HASH
 ENV GIT_HASH=$GIT_HASH
 
-RUN flake8 --max-line-length=120 --ignore=E702 *.py tests c2corg_images \
+RUN flake8 --max-line-length=120 --ignore=E702,W504 *.py tests c2corg_images \
  && scripts/check_typing.sh \
  && c2cwsgiutils_genversion.py $GIT_HASH \
  && mv docker-entrypoint.* /

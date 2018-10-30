@@ -1,8 +1,7 @@
-boto3==1.8.7
+boto3==1.9.33
 c2cwsgiutils>=2.0,<3.0
-mypy-lang==0.5.0
 redis==2.10.6
-Pillow==5.2.0
+Pillow==5.3.0
 wand==0.4.4
-WebTest==2.0.30
+WebTest==2.0.32
 python-json-logger==0.1.9
