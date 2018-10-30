@@ -8,7 +8,7 @@ from c2cwsgiutils import stats
 import logging
 log = logging.getLogger(__name__)
 
-original_pattern = re.compile('(\d+_\d+)\.(\w+)')
+original_pattern = re.compile(r'(\d+_\d+)\.(\w+)')
 
 
 def resized_key(original, config):
