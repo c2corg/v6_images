@@ -36,7 +36,7 @@ Configuration should be set by environment variables:
 * ``s3``: requires ``INCOMING_FOLDER`` and ``ACTIVE_FOLDER``, should be used in
   production.
 * ``local``: requires ``INCOMING_BUCKET`` and ``ACTIVE_BUCKET``, should be used
-  for tests and developement.
+  for tests and development.
 
 ``TEMP_FOLDER``: (required) Local folder to store images temporarily.
 
