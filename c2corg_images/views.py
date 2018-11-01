@@ -24,6 +24,15 @@ def ping(request):
     return Response('Pong!' % request.matchdict)
 
 
+def validate_secret(view_callable):
+    def inner(request):
+        if request.POST['secret'] != os.environ['API_SECRET_KEY']:
+            raise HTTPForbidden('Bad secret key')
+        else:
+            return view_callable(request)
+    return inner
+
+
 def get_format(path: str, filename: str) -> str:
     # imagemagick returns 'PNG' for SVG files
     base, ext = os.path.splitext(filename)
@@ -107,9 +116,8 @@ def upload(request):
 
 
 @view_config(route_name='publish', renderer='json')
+@validate_secret
 def publish(request):
-    if request.POST['secret'] != os.environ['API_SECRET_KEY']:
-        raise HTTPForbidden('Bad secret key')
     filename = request.POST['filename']
     already_published = active_storage.exists(filename)
     if 'crop' in request.POST:
@@ -130,9 +138,8 @@ def publish(request):
 
 
 @view_config(route_name='recrop', renderer='json')
+@validate_secret
 def recrop(request):
-    if request.POST['secret'] != os.environ['API_SECRET_KEY']:
-        raise HTTPForbidden('Bad secret key')
     # Retrieve and rename file
     old_filename = request.POST['filename']
     base, ext = os.path.splitext(old_filename)
@@ -153,9 +160,8 @@ def recrop(request):
 
 
 @view_config(route_name='delete', renderer='json')
+@validate_secret
 def delete(request):
-    if request.POST['secret'] != os.environ['API_SECRET_KEY']:
-        raise HTTPForbidden('Bad secret key')
     filenames = request.POST.getall('filenames')
     for filename in filenames:
         try:
