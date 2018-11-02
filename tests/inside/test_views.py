@@ -24,6 +24,13 @@ class TestViews(unittest.TestCase):
                        'filename': 'test.png'},
                       status=200)
 
+    def test_delete_bad_secret(self):
+        """Test delete with bad secret"""
+        self.app.post('/delete',
+                      {'secret': 'bad_secret',
+                       'filename': 'test.png'},
+                      status=403)
+
     @patch('c2corg_images.views.active_storage.delete')
     def test_delete_svg(self, delete_mock):
         """Test delete with one svg filename"""
@@ -53,3 +60,10 @@ class TestViews(unittest.TestCase):
             call('test2BI.jpg'),
             call('test2MI.jpg'),
             call('test2SI.jpg')])
+
+    def test_recrop_bad_secret(self):
+        """Test recrop with bad secret"""
+        self.app.post('/recrop',
+                      {'secret': 'bad_secret',
+                       'filename': 'test.png'},
+                      status=403)
