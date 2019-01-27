@@ -1,4 +1,4 @@
-boto3==1.9.85
+boto3==1.9.86
 c2cwsgiutils>=2.0,<3.0
 redis==3.0.1
 Pillow==5.4.1
