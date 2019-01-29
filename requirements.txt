@@ -1,6 +1,6 @@
 boto3==1.9.86
 c2cwsgiutils>=2.0,<3.0
-redis==3.0.1
+redis==3.1.0
 Pillow==5.4.1
 wand==0.5.0
 WebTest==2.0.32
