@@ -1,4 +1,4 @@
-FROM camptocamp/c2cwsgiutils:2-light
+FROM camptocamp/c2cwsgiutils:3
 
 ENV DEBIAN_FRONTEND noninteractive
 

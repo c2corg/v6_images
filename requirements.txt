@@ -1,6 +1,5 @@
-boto3==1.9.91
-c2cwsgiutils>=2.0,<3.0
-redis==3.1.0
+boto3==1.9.93
+c2cwsgiutils[broadcast]>=3.0.0,<4
 Pillow==5.4.1
 wand==0.5.0
 WebTest==2.0.33
