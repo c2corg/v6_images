@@ -38,11 +38,12 @@ def create_resized_image(path: str, original: str, config: Dict) -> str:
     original_path = os.path.join(path, original)
     resized = resized_key(original, config)
     resized_path = os.path.join(path, resized)
-    log.info('Creating resized image %s', resized_path)
+    resize_config = config['convert']
+    log.info('Creating resized image %s with options %s', resized_path, resize_config)
     with stats.timer_context(['transform', 'resize', _get_size(config)]):
         transform(original_path,
                   resized_path,
-                  config['convert'])
+                  resize_config)
     return resized
 
 
