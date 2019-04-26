@@ -1,4 +1,5 @@
 import os
+import logging
 import shutil
 import random
 from datetime import datetime
@@ -14,8 +15,10 @@ from c2cwsgiutils import stats
 from c2corg_images.cropping import create_cropped_image
 from c2corg_images.resizing import create_resized_images, resized_keys
 from c2corg_images.storage import temp_storage, incoming_storage, active_storage
+from c2corg_images.autoorient import auto_orient
 
-import logging
+AUTO_ORIENT_ORIGINAL = os.environ.get('AUTO_ORIENT_ORIGINAL', '0') == '1'
+
 log = logging.getLogger(__name__)
 
 
@@ -101,6 +104,9 @@ def upload(request):
     # Rename to official extension
     original_key = "{}.{}".format(pre_key, kind)
     os.rename(raw_file, temp_storage.object_path(original_key))
+
+    if AUTO_ORIENT_ORIGINAL:
+        auto_orient(temp_storage.object_path(original_key))
 
     create_resized_images(temp_storage.path(), original_key)
 
