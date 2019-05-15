@@ -149,7 +149,7 @@ def recrop(request):
     # Retrieve and rename file
     old_filename = request.POST['filename']
     base, ext = os.path.splitext(old_filename)
-    active_storage.move(old_filename, temp_storage)
+    active_storage.copy(old_filename, temp_storage)
     filename = '{name}{ext}'.format(name=create_pseudo_unique_key(), ext=ext)
     os.rename(temp_storage.object_path(old_filename), temp_storage.object_path(filename))
     temp_storage.copy(filename, active_storage)
