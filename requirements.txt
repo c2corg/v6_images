@@ -1,6 +1,6 @@
 boto3==1.9.179
 c2cwsgiutils[broadcast]>=3.4.0,<4
 Pillow==6.0.0
-wand==0.5.4
+wand==0.5.5
 WebTest==2.0.33
 python-json-logger==0.1.11
