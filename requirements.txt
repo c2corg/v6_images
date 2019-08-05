@@ -1,4 +1,4 @@
-boto3==1.9.179
+boto3==1.9.200
 c2cwsgiutils[broadcast]>=3.4.0,<4
 Pillow==6.0.0
 wand==0.5.6
