@@ -1,7 +1,13 @@
-boto3==1.4.0
+boto3==1.4.5
 c2cwsgiutils>0,<1
 mypy-lang==0.4.1
-Pillow==4.1.0
+Pillow==6.2.0
 wand==0.4.4
 WebTest==2.0.20
 python-json-logger==0.1.8
+
+gunicorn>=19.10.0 # not directly required, pinned by Snyk to avoid a vulnerability
+lxml>=4.6.2 # not directly required, pinned by Snyk to avoid a vulnerability
+requests>=2.20 # not directly required, pinned by Snyk to avoid a vulnerability
+sqlalchemy>=1.2.18 # not directly required, pinned by Snyk to avoid a vulnerability
+urllib3>=1.25.9 # not directly required, pinned by Snyk to avoid a vulnerability
