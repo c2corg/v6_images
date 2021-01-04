@@ -13,6 +13,13 @@ RUN set -x \
     jpegoptim \
     optipng \
     librsvg2-bin \
+    fonts-liberation \
+    gsfonts \
+    texlive-fonts-extra \
+    texlive-fonts-recommended \
+    gsfonts-x11 \
+    ttf-bitstream-vera \
+    ttf-dejavu \
  && rm -fr .cache \
  && apt-get -y --purge autoremove \
  && apt-get clean \

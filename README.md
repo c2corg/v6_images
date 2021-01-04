@@ -1,15 +1,13 @@
-Image backend service
----------------------
+# Image backend service
 
 This project handles receiving images from the user and generating smaller
 versions. It is using docker to be able to run it either together with the
 API machine or on a separate machine.
 
-
-Upload
---------
+## Upload
 
 The original image uploaded by the user is:
+
 - uniquely renamed using a timestamp and random number;
 - stored locally in an "incoming" directory;
 - converted to smaller sizes.
@@ -17,25 +15,22 @@ The original image uploaded by the user is:
 The image is uploaded immediately to S3.
 The user receives the renamed filename.
 
-
-Activation
-----------
+## Activation
 
 The user associates the filename to a document, which is stored in the API.
 At that time, a request is sent to image backend to move original and resized
 images from the incoming bucket to the public bucket. This step ensures the
 image is associated with an authenticated user.
 
-Configuration
--------------
+## Configuration
 
 Configuration should be set by environment variables:
 
 ``STORAGE_BACKEND``: (required) ``s3`` or ``local``
 
-* ``s3``: requires ``INCOMING_FOLDER`` and ``ACTIVE_FOLDER``, should be used in
+- ``s3``: requires ``INCOMING_FOLDER`` and ``ACTIVE_FOLDER``, should be used in
   production.
-* ``local``: requires ``INCOMING_BUCKET`` and ``ACTIVE_BUCKET``, should be used
+- ``local``: requires ``INCOMING_BUCKET`` and ``ACTIVE_BUCKET``, should be used
   for tests and developement.
 
 ``TEMP_FOLDER``: (required) Local folder to store images temporarily.
@@ -67,11 +62,11 @@ bucket.
 
 ``ROUTE_PREFIX``: Path prefix for serving the photo backend API. 
 
-``RESIZING_CONFIG``: Configuration of the thumbnail names and sizes serialized in JSON. See c2corg\_images/__init__.py for a description of the format. 
+``RESIZING_CONFIG``: Configuration of the thumbnail names and sizes serialized in JSON. See c2corg\_images/__init__.py for a description of the format.
 
 Here is an example configuration with S3 backend on exoscale:
 
-```
+```bash
 STORAGE_BACKEND: s3
 
 TEMP_FOLDER: /srv/images/temp
@@ -91,36 +86,32 @@ API_SECRET_KEY: xxx
 V5_DATABASE_URL: postgresql://www-data:www-data@postgres/c2corg
 ```
 
-Cleaning
---------
+## Cleaning
 
 The files which were not activated are automatically expired by S3.
 
-
-Building and running with Docker
--------------------------------
+## Building and running with Docker
 
 `make run`
 
-
-Launch images migration from V5 to V6
--------------------------------------
+## Launch images migration from V5 to V6
 
 The migration retrieves a list of images from the v5 database. The connection
 to the database can be defined as environment variable, for example:
 
-```
+```bash
 V5_DATABASE_URL: postgresql://www-data:www-data@postgres/c2corg
 ```
 
 The migration script iterates through v5 images. For each *original* image
 found:
-* If the image already exists in publication bucket, nothing is done (only
+
+- If the image already exists in publication bucket, nothing is done (only
   migrate the new ones).
-* If the image does not exists in the v6 bucket:
-   * the *original* image is copied locally,
-   * *resized* images are produced according to configuration,
-   * *original* and *resized* images are pushed on publication bucket.
+- If the image does not exists in the v6 bucket:
+  - the *original* image is copied locally,
+  - *resized* images are produced according to configuration,
+  - *original* and *resized* images are pushed on publication bucket.
 
 To run the migration script:
 
@@ -128,17 +119,16 @@ To run the migration script:
 
 ``docker-compose exec images migrate --help`` to get options list.
 
-
-Generate *resized* images after migration
------------------------------------------
+## Generate *resized* images after migration
 
 This can be used to change the size or quality of *resized* images.
 
 This script iterates through *published* images. For each *original* image
 found:
-* the *original* image is copied locally,
-* *resized* images are produced according to configuration,
-* *resized* images are pushed in publication bucket, overwriting old ones.
+
+- the *original* image is copied locally,
+- *resized* images are produced according to configuration,
+- *resized* images are pushed in publication bucket, overwriting old ones.
 
 To regenerate the *resized* images:
 
@@ -146,24 +136,22 @@ To regenerate the *resized* images:
 
 ``docker-compose exec images resize --help`` to get options list.
 
-
-Release on docker hub
----------------------
+## Release on docker hub
 
 The project is built by Jenkins.
 
 To make a release:
 
-* Commit and push to master.
-* Tag the GIT commit.
-* Rebase the `release_${MAJOR_VERSION}` branch to this commit and push the `release_${MAJOR_VERSION}` and
+- Commit and push to master.
+- Tag the GIT commit.
+- Rebase the `release_${MAJOR_VERSION}` branch to this commit and push the `release_${MAJOR_VERSION}` and
   the tag to github. Make sure to do that at the same time so that Jenkins can see the tag when it builds
   the branch.
 
 To have the int/prod tag point to another version:
 
-* Fast forward or reset the `release_int` or `release_prod` branch to the wanted version.
-* Push the branch to github.
+- Fast forward or reset the `release_int` or `release_prod` branch to the wanted version.
+- Push the branch to github.
 
 We need the `release_*` branches, so that Jenkins can build a new docker image for the major
 versions every nights.
