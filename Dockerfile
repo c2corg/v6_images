@@ -52,4 +52,4 @@ ENV C2CORG_IMAGES_LOG_LEVEL=INFO \
     ACTIVE_FOLDER=/tmp/active \
     GUNICORN_PARAMS="-b :8080 --worker-class gthread --threads 10 --workers 5"
 
-CMD ["c2cwsgiutils_run"]
+CMD ["c2cwsgiutils-run"]
