@@ -1,1 +1,2 @@
 c2cwsgiutils>=4.1.0
+requests>=2.25.1
