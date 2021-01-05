@@ -1,6 +1,6 @@
 import os
 from c2corg_images.convert import transform
-from c2cwsgiutils import stats
+from c2cwsgiutils import stats  # type: ignore
 
 import logging
 log = logging.getLogger(__name__)

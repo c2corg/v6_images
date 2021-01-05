@@ -3,9 +3,10 @@ import datetime
 import shutil
 import threading
 import boto3
-import botocore
+import botocore  # type: ignore
 import mimetypes
-from c2cwsgiutils import stats
+from c2cwsgiutils import stats  # type: ignore
+from typing import Optional
 
 import logging
 log = logging.getLogger(__name__)
@@ -225,8 +226,8 @@ def getS3Params(prefix):
     return params
 
 
-incoming_storage = None  # type: BaseStorage
-active_storage = None  # type: BaseStorage
+incoming_storage = None  # type: Optional[BaseStorage]
+active_storage = None  # type: Optional[BaseStorage]
 if os.environ['STORAGE_BACKEND'] == 's3':
     incoming_storage = S3Storage(os.environ['INCOMING_BUCKET'],
                                  getS3Params('INCOMING'),

@@ -1,4 +1,4 @@
-FROM camptocamp/c2cwsgiutils:0
+FROM camptocamp/c2cwsgiutils:4
 
 ENV DEBIAN_FRONTEND noninteractive
 
@@ -28,18 +28,18 @@ RUN set -x \
 WORKDIR /app
 
 COPY requirements.txt setup.py ./
-RUN pip install --no-cache-dir -r requirements.txt \
+RUN python3 -m pip install --no-cache-dir -r requirements.txt \
   && rm -fr .cache
-RUN pip install -e .
+RUN python3 -m pip install -e .
 
 COPY . /app
 
 ARG GIT_HASH
 ENV GIT_HASH=$GIT_HASH
 
-RUN flake8 --max-line-length=120 --ignore=E702 *.py tests c2corg_images \
+RUN flake8 --max-line-length=120 --ignore=E702,W504 *.py tests c2corg_images \
  && scripts/check_typing.sh \
- && c2cwsgiutils_genversion.py $GIT_HASH \
+ && c2cwsgiutils-genversion $GIT_HASH \
  && mv docker-entrypoint.* /
 
 EXPOSE 8080

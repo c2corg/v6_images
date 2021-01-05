@@ -3,12 +3,12 @@ import re
 from typing import Dict
 from c2corg_images import RESIZING_CONFIG
 from c2corg_images.convert import transform, rasterize_svg
-from c2cwsgiutils import stats
+from c2cwsgiutils import stats  # type: ignore
 
 import logging
 log = logging.getLogger(__name__)
 
-original_pattern = re.compile('(\d+_\d+)\.(\w+)')
+original_pattern = re.compile(r'(\d+_\d+)\.(\w+)')
 
 
 def resized_key(original, config):

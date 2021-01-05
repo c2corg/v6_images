@@ -3,13 +3,13 @@ import shutil
 import random
 from datetime import datetime
 
-from pyramid.response import Response
-from pyramid.view import view_config
-from pyramid.httpexceptions import HTTPForbidden, HTTPBadRequest
+from pyramid.response import Response  # type: ignore
+from pyramid.view import view_config  # type: ignore
+from pyramid.httpexceptions import HTTPForbidden, HTTPBadRequest  # type: ignore
 
-from wand.image import Image
+from wand.image import Image  # type: ignore
 
-from c2cwsgiutils import stats
+from c2cwsgiutils import stats  # type: ignore
 
 from c2corg_images.cropping import create_cropped_image
 from c2corg_images.resizing import create_resized_images, resized_keys

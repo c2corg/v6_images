@@ -11,7 +11,7 @@ services:
 - docker
 
 python:
-- 3.5
+- 3.9
 
 cache:
   directories:
@@ -19,7 +19,7 @@ cache:
 
 install:
 - mkdir .build
-- ln -s ~/virtualenv/python3.5 .build/venv
+- ln -s ~/virtualenv/python3.9 .build/venv
 - make build
 
 script:
