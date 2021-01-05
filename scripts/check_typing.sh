@@ -1,6 +1,7 @@
 #!/bin/sh
 
-mypy c2corg_images
+lib=`python3 -c 'import site; print(site.getsitepackages()[0])'`
+python3 $lib/mypy c2corg_images
 error=$?
 test $error -eq 0 && echo 'Typing OK'
 exit $error
