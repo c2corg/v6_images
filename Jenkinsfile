@@ -12,8 +12,6 @@ def getMajorRelease() {
 }
 def majorRelease = getMajorRelease()
 
-env.TRAVIS = "true"
-
 // We don't want to publish the same branch twice at the same time.
 dockerBuild {
     stage('Update docker') {

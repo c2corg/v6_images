@@ -1,7 +1,7 @@
-import c2cwsgiutils.pyramid  # type: ignore
-from c2cwsgiutils.health_check import HealthCheck  # type: ignore
-from pyramid.config import Configurator  # type: ignore
-from pyramid.events import NewRequest  # type: ignore
+import c2cwsgiutils.pyramid
+from c2cwsgiutils.health_check import HealthCheck
+from pyramid.config import Configurator
+from pyramid.events import NewRequest
 import os
 import json
 

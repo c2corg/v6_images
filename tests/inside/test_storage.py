@@ -4,7 +4,7 @@ import requests
 from c2corg_images.storage import (
     S3Storage, LocalStorage, temp_storage, getS3Params)
 
-from tests import utils, data_folder
+from tests import data_folder
 
 import logging
 logging.getLogger('boto3').setLevel(logging.CRITICAL)
@@ -47,6 +47,7 @@ class BaseStorageTest(unittest.TestCase):
             r = requests.get(url, stream=True, timeout=120)
             assert r.status_code == 200
             assert r.headers['content-type'] == 'image/png'
+            assert r.headers['cache-control'] == 'public, max-age=3600'
 
         # cleaning
         self.active_storage.delete(key)
@@ -80,16 +81,15 @@ class S3StorageTest(BaseStorageTest):
     def setUp(self):  # NOQA
         self.incoming_storage = S3Storage(os.environ['INCOMING_BUCKET'],
                                           getS3Params('INCOMING'),
-                                          default_acl='private')
+                                          default_acl='private',
+                                          should_expire=True)
         self.active_storage = S3Storage(os.environ['ACTIVE_BUCKET'],
                                         getS3Params('ACTIVE'),
                                         default_acl='public-read')
 
-    @utils.skipIfTravis
     def test_standard_protocol(self):
         super(S3StorageTest, self).standard_protocol()
 
-    @utils.skipIfTravis
     def test_resizing_protocol(self):
         super(S3StorageTest, self).resizing_protocol()
 

@@ -1,4 +1,4 @@
-FROM camptocamp/c2cwsgiutils:4
+FROM camptocamp/c2cwsgiutils:3
 
 ENV DEBIAN_FRONTEND noninteractive
 
@@ -39,7 +39,7 @@ ENV GIT_HASH=$GIT_HASH
 
 RUN flake8 --max-line-length=120 --ignore=E702,W504 *.py tests c2corg_images \
  && scripts/check_typing.sh \
- && c2cwsgiutils-genversion $GIT_HASH \
+ && c2cwsgiutils_genversion.py $GIT_HASH \
  && mv docker-entrypoint.* /
 
 EXPOSE 8080
@@ -52,4 +52,4 @@ ENV C2CORG_IMAGES_LOG_LEVEL=INFO \
     ACTIVE_FOLDER=/tmp/active \
     GUNICORN_PARAMS="-b :8080 --worker-class gthread --threads 10 --workers 5"
 
-CMD ["c2cwsgiutils-run"]
+CMD ["c2cwsgiutils_run"]

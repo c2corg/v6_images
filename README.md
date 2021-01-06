@@ -8,6 +8,7 @@ API machine or on a separate machine.
 
 The original image uploaded by the user is:
 
+- optionally rotate the image according to the EXIF orientation value
 - uniquely renamed using a timestamp and random number;
 - stored locally in an "incoming" directory;
 - converted to smaller sizes.
@@ -31,7 +32,7 @@ Configuration should be set by environment variables:
 - ``s3``: requires ``INCOMING_FOLDER`` and ``ACTIVE_FOLDER``, should be used in
   production.
 - ``local``: requires ``INCOMING_BUCKET`` and ``ACTIVE_BUCKET``, should be used
-  for tests and developement.
+  for tests and development.
 
 ``TEMP_FOLDER``: (required) Local folder to store images temporarily.
 
@@ -60,9 +61,13 @@ bucket.
 
 ``V5_DATABASE_URL``: Address of the V5 database for the migration script.
 
-``ROUTE_PREFIX``: Path prefix for serving the photo backend API. 
+``ROUTE_PREFIX``: Path prefix for serving the photo backend API.
 
 ``RESIZING_CONFIG``: Configuration of the thumbnail names and sizes serialized in JSON. See c2corg\_images/__init__.py for a description of the format.
+
+``AUTO_ORIENT_ORIGINAL``: `1` to rotate the uploaded image according to the EXIF orientation. Default is `0`.
+
+``CACHE_CONTROL``: Cache-Control value to be set to all the images uploaded to s3. Default is `public, max-age=3600`.
 
 Here is an example configuration with S3 backend on exoscale:
 

@@ -1,27 +1,39 @@
 import os
+import logging
 import shutil
 import random
 from datetime import datetime
 
-from pyramid.response import Response  # type: ignore
-from pyramid.view import view_config  # type: ignore
-from pyramid.httpexceptions import HTTPForbidden, HTTPBadRequest  # type: ignore
+from pyramid.response import Response
+from pyramid.view import view_config
+from pyramid.httpexceptions import HTTPForbidden, HTTPBadRequest
 
-from wand.image import Image  # type: ignore
+from wand.image import Image
 
-from c2cwsgiutils import stats  # type: ignore
+from c2cwsgiutils import stats
 
 from c2corg_images.cropping import create_cropped_image
 from c2corg_images.resizing import create_resized_images, resized_keys
 from c2corg_images.storage import temp_storage, incoming_storage, active_storage
+from c2corg_images.autoorient import auto_orient
 
-import logging
+AUTO_ORIENT_ORIGINAL = os.environ.get('AUTO_ORIENT_ORIGINAL', '0') == '1'
+
 log = logging.getLogger(__name__)
 
 
 @view_config(route_name='ping')
 def ping(request):
     return Response('Pong!' % request.matchdict)
+
+
+def validate_secret(view_callable):
+    def inner(request):
+        if request.POST['secret'] != os.environ['API_SECRET_KEY']:
+            raise HTTPForbidden('Bad secret key')
+        else:
+            return view_callable(request)
+    return inner
 
 
 def get_format(path: str, filename: str) -> str:
@@ -93,6 +105,9 @@ def upload(request):
     original_key = "{}.{}".format(pre_key, kind)
     os.rename(raw_file, temp_storage.object_path(original_key))
 
+    if AUTO_ORIENT_ORIGINAL:
+        auto_orient(temp_storage.object_path(original_key))
+
     create_resized_images(temp_storage.path(), original_key)
 
     log.debug('%s - uploading original file', pre_key)
@@ -107,9 +122,8 @@ def upload(request):
 
 
 @view_config(route_name='publish', renderer='json')
+@validate_secret
 def publish(request):
-    if request.POST['secret'] != os.environ['API_SECRET_KEY']:
-        raise HTTPForbidden('Bad secret key')
     filename = request.POST['filename']
     already_published = active_storage.exists(filename)
     if 'crop' in request.POST:
@@ -130,13 +144,12 @@ def publish(request):
 
 
 @view_config(route_name='recrop', renderer='json')
+@validate_secret
 def recrop(request):
-    if request.POST['secret'] != os.environ['API_SECRET_KEY']:
-        raise HTTPForbidden('Bad secret key')
     # Retrieve and rename file
     old_filename = request.POST['filename']
     base, ext = os.path.splitext(old_filename)
-    active_storage.move(old_filename, temp_storage)
+    active_storage.copy(old_filename, temp_storage)
     filename = '{name}{ext}'.format(name=create_pseudo_unique_key(), ext=ext)
     os.rename(temp_storage.object_path(old_filename), temp_storage.object_path(filename))
     temp_storage.copy(filename, active_storage)
@@ -153,9 +166,8 @@ def recrop(request):
 
 
 @view_config(route_name='delete', renderer='json')
+@validate_secret
 def delete(request):
-    if request.POST['secret'] != os.environ['API_SECRET_KEY']:
-        raise HTTPForbidden('Bad secret key')
     filenames = request.POST.getall('filenames')
     for filename in filenames:
         try:

@@ -1,6 +1,7 @@
 *.pyc
 *.cache
 .build
+.pytest_cache
 incoming/*.jpg
 incoming/*.gif
 incoming/*.png

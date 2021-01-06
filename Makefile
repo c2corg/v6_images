@@ -1,8 +1,10 @@
 GIT_HASH := $(shell git rev-parse HEAD)
 
+all: build test
+
 .PHONY:
 pull:
-	docker pull docker.io/debian:jessie
+	for image in `find -name Dockerfile | xargs grep --no-filename FROM | awk '{print $$2}' | sort -u`; do docker pull $$image; done
 
 .PHONY:
 build:
@@ -20,12 +22,18 @@ latest:
 .build/venv/bin/python .build/venv/bin/pip:
 	python3 -m venv .build/venv
 
-.build/venv/bin/py.test: requirements_host.txt .build/venv/bin/python
-	.build/venv/bin/pip install -r requirements_host.txt
+.build/venv/bin/py.test: requirements_host.txt requirements.txt .build/venv/bin/python
+	.build/venv/bin/pip install -r requirements_host.txt -r requirements.txt
 
 .PHONY:
 test-inside: build
-	docker-compose run --rm -e TRAVIS wsgi scripts/launch_inside_tests.sh
+	docker run --rm -v $$PWD/data:/data c2corg/v6_images:latest rm -rf /data/incoming/* /data/active/* /data/.minio.sys/format.json /data/.minio.sys/multipart  /data/.minio.sys/tmp
+	docker-compose stop || true
+	docker-compose rm -f || true
+	docker-compose run --rm wsgi scripts/launch_inside_tests.sh
+	docker-compose stop || true
+	docker-compose rm -f || true
+	docker run --rm -v $$PWD/data:/data c2corg/v6_images:latest rm -rf /data/incoming/* /data/active/* /data/.minio.sys/format.json /data/.minio.sys/multipart  /data/.minio.sys/tmp
 
 .PHONY:
 test-outside: .build/venv/bin/py.test build

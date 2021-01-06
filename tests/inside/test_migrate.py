@@ -3,8 +3,6 @@ from c2corg_images.resizing import resized_keys
 from c2corg_images.storage import active_storage
 from c2corg_images.scripts.migrate import Migrator
 
-from tests import utils
-
 files = [{'filename': '1437737998_1507635670.jpg', 'has_svg': False},
          {'filename': '1274781175_1003161687.jpg', 'has_svg': True}]
 
@@ -27,7 +25,6 @@ sql_results = (
     8 * [Mock(fetchone=Mock(return_value={'count': 1}))])  # _is_migrated
 
 
-@utils.skipIfTravis
 @patch(
     'c2corg_images.scripts.migrate.create_engine',
     return_value=Mock(
