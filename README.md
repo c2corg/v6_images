@@ -29,9 +29,9 @@ Configuration should be set by environment variables:
 
 ``STORAGE_BACKEND``: (required) ``s3`` or ``local``
 
-- ``s3``: requires ``INCOMING_FOLDER`` and ``ACTIVE_FOLDER``, should be used in
+- ``s3``: requires ``INCOMING_BUCKET`` and ``ACTIVE_BUCKET``, should be used in
   production.
-- ``local``: requires ``INCOMING_BUCKET`` and ``ACTIVE_BUCKET``, should be used
+- ``local``: requires ``INCOMING_FOLDER`` and ``ACTIVE_FOLDER``, should be used
   for tests and development.
 
 ``TEMP_FOLDER``: (required) Local folder to store images temporarily.
@@ -53,6 +53,8 @@ Configuration should be set by environment variables:
 *PREFIX_*``ACCESS_KEY_ID``: API key for corresponding prefix.
 
 *PREFIX_*``SECRET_KEY``: Secret key for corresponding prefix.
+
+*PREFIX_*``DEFAULT_REGION``: Default region for corresponding prefix.
 
 ``S3_SIGNATURE_VERSION``: S3 signature version ('s3' or 's3v4'), see [docs](https://botocore.readthedocs.io/en/stable/reference/config.html#botocore.config.Config).
 

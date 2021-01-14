@@ -233,6 +233,7 @@ def getS3Params(prefix):
         params['config'] = S3_CONFIG
         params['aws_access_key_id'] = os.environ.get("{}_ACCESS_KEY_ID".format(PREFIX))
         params['aws_secret_access_key'] = os.environ.get("{}_SECRET_KEY".format(PREFIX))
+        params['region_name'] = os.environ.get("{}_DEFAULT_REGION".format(PREFIX))
 
     return params
 
