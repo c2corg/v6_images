@@ -18,6 +18,7 @@ cache:
   - $HOME/.cache/pip
 
 install:
+- docker login -u "$DOCKER_USER" -p "$DOCKER_PASS"
 - mkdir .build
 - ln -s ~/virtualenv/python3.8 .build/venv
 - make build
