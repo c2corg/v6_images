@@ -25,7 +25,7 @@ wsgi:
 
     ROUTE_PREFIX: /
 
-    # AUTO_ORIENT_ORIGINAL: 1
+    AUTO_ORIENT_ORIGINAL: 1
   cap_add:
     - NET_BIND_SERVICE
   ports:

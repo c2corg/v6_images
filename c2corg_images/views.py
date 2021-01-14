@@ -105,7 +105,7 @@ def upload(request):
     original_key = "{}.{}".format(pre_key, kind)
     os.rename(raw_file, temp_storage.object_path(original_key))
 
-    if AUTO_ORIENT_ORIGINAL:
+    if AUTO_ORIENT_ORIGINAL and kind == 'jpg':
         auto_orient(temp_storage.object_path(original_key))
 
     create_resized_images(temp_storage.path(), original_key)
