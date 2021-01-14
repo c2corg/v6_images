@@ -12,8 +12,8 @@ def test_service_is_up(connection):
 def upload_image(connection, filename, expected_status=200):
     with open(filename, 'rb') as img_file:
         files = {'file': img_file}
-        return json.loads(connection.post_file(
-            'upload', files, expected_status=expected_status, cors=False))
+        return connection.post_file(
+            'upload', files, expected_status=expected_status, cors=False)
 
 
 @pytest.mark.parametrize("filename", [
@@ -42,7 +42,7 @@ def test_publish_bad_secret(connection):
 
 def test_publish_good_secret(connection):
     path = os.path.join(data_folder, 'images', 'violin.jpg')
-    body = upload_image(connection, path, expected_status=200)
+    body = json.loads(upload_image(connection, path, expected_status=200))
     filename = body['filename']
     connection.post('publish',
                     data={'secret': 'good_secret', 'filename': filename},
@@ -51,7 +51,7 @@ def test_publish_good_secret(connection):
 
 def test_publish_twice_no_crop(connection):
     path = os.path.join(data_folder, 'images', 'violin.jpg')
-    body = upload_image(connection, path, expected_status=200)
+    body = json.loads(upload_image(connection, path, expected_status=200))
     filename = body['filename']
     connection.post('publish',
                     data={'secret': 'good_secret', 'filename': filename},
@@ -63,7 +63,7 @@ def test_publish_twice_no_crop(connection):
 
 def test_publish_twice_crop(connection):
     path = os.path.join(data_folder, 'images', 'violin.jpg')
-    body = upload_image(connection, path, expected_status=200)
+    body = json.loads(upload_image(connection, path, expected_status=200))
     filename = body['filename']
     connection.post('publish',
                     data={'secret': 'good_secret', 'filename': filename, 'crop': '100x100+10+10'},
@@ -75,7 +75,7 @@ def test_publish_twice_crop(connection):
 
 def test_publish_twice_crop_no_crop(connection):
     path = os.path.join(data_folder, 'images', 'violin.jpg')
-    body = upload_image(connection, path, expected_status=200)
+    body = json.loads(upload_image(connection, path, expected_status=200))
     filename = body['filename']
     connection.post('publish',
                     data={'secret': 'good_secret', 'filename': filename, 'crop': '100x100+10+10'},
@@ -87,7 +87,7 @@ def test_publish_twice_crop_no_crop(connection):
 
 def test_publish_twice_no_crop_crop(connection):
     path = os.path.join(data_folder, 'images', 'violin.jpg')
-    body = upload_image(connection, path, expected_status=200)
+    body = json.loads(upload_image(connection, path, expected_status=200))
     filename = body['filename']
     connection.post('publish',
                     data={'secret': 'good_secret', 'filename': filename},
