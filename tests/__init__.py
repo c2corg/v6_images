@@ -89,7 +89,7 @@ class WsgiConnection:
         try:
             check_response(r)
             self._check_cors(cors, r)
-            return r.json() if r.status_code != 204 else None
+            return r.text if r.status_code != 204 else None
         finally:
             r.close()
 
@@ -113,7 +113,7 @@ class WsgiConnection:
         try:
             check_response(r, expected_status)
             self._check_cors(cors, r)
-            return r.json() if r.status_code != 204 else None
+            return r.text if r.status_code != 204 else None
         finally:
             r.close()
 
@@ -125,7 +125,7 @@ class WsgiConnection:
         try:
             check_response(r, expected_status)
             self._check_cors(cors, r)
-            return r.json() if r.status_code != 204 else None
+            return r.text if r.status_code != 204 else None
         finally:
             r.close()
 
@@ -137,7 +137,7 @@ class WsgiConnection:
         try:
             check_response(r, expected_status)
             self._check_cors(cors, r)
-            return r.json() if r.status_code != 204 else None
+            return r.text if r.status_code != 204 else None
         finally:
             r.close()
 
@@ -149,7 +149,7 @@ class WsgiConnection:
         try:
             check_response(r, expected_status)
             self._check_cors(cors, r)
-            return r.json() if r.status_code != 204 else None
+            return r.text if r.status_code != 204 else None
         finally:
             r.close()
 
