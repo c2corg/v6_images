@@ -3,7 +3,7 @@ c2cwsgiutils[broadcast]>=4.0,<5
 Pillow==8.1.0
 wand==0.6.5
 WebTest==2.0.35
-python-json-logger==0.1.11
+python-json-logger==2.0.1
 flake8==3.8.4
 mypy==0.790
 pytest==6.2.1
