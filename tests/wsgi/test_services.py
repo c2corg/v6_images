@@ -1,4 +1,5 @@
 import os
+import json
 import pytest
 from tests import data_folder
 
@@ -11,8 +12,8 @@ def test_service_is_up(connection):
 def upload_image(connection, filename, expected_status=200):
     with open(filename, 'rb') as img_file:
         files = {'file': img_file}
-        return connection.post_file(
-            'upload', files, expected_status=expected_status, cors=False)
+        return json.loads(connection.post_file(
+            'upload', files, expected_status=expected_status, cors=False))
 
 
 @pytest.mark.parametrize("filename", [
