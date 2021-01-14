@@ -3,17 +3,17 @@ wsgi:
   container_name: c2corg_images_test
   image: c2corg/v6_images:latest
   environment:
-    STORAGE_BACKEND: s3  # local or s3
+    STORAGE_BACKEND: local  # local or s3
 
     TEMP_FOLDER: /tmp/temp
-    # INCOMING_FOLDER: /tmp/incoming
-    # ACTIVE_FOLDER: /tmp/active
-    # V5_FOLDER: /tmp/tests/data/v5_images
 
     API_SECRET_KEY: good_secret
 
     INCOMING_BUCKET: incoming
     ACTIVE_BUCKET: active
+
+    INCOMING_FOLDER: /tmp/incoming
+    ACTIVE_FOLDER: /tmp/active
 
     INCOMING_PREFIX: MINIO
     ACTIVE_PREFIX: MINIO
