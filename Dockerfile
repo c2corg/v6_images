@@ -15,7 +15,6 @@ RUN set -x \
     librsvg2-bin \
     fonts-liberation \
     gsfonts \
-    texlive-fonts-extra \
     texlive-fonts-recommended \
     gsfonts-x11 \
     ttf-bitstream-vera \
