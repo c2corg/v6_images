@@ -15,7 +15,7 @@ BUCKET_DATABASE_URL = os.environ.get('BUCKET_DATABASE_URL', None)
 class Migrator(MultithreadProcessor):
 
     def __init__(self, *args, **kwargs):
-        super(MultithreadProcessor, self).__init__(*args, **kwargs)
+        super(Migrator, self).__init__(*args, **kwargs)
         self._init_v5_database()
         self._init_bucket_database()
 

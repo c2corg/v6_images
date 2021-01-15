@@ -121,7 +121,6 @@ class S3Storage(BaseStorage):
                 return False
             else:
                 raise e
-        return True
 
     def get(self, key, path):
         with stats.timer_context(['storage', 's3', 'get']):
