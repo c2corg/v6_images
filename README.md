@@ -1,3 +1,5 @@
+![Github Code scanning](https://github.com/c2corg/v6_images/workflows/Github%20Code%20scanning/badge.svg?branch=master)
+
 # Image backend service
 
 This project handles receiving images from the user and generating smaller
