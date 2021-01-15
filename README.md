@@ -1,4 +1,5 @@
-![Github Code scanning](https://github.com/c2corg/v6_images/workflows/Github%20Code%20scanning/badge.svg?branch=master)
+[![GitHub license](https://img.shields.io/github/license/c2corg/v6_images.svg)](https://github.com/c2corg/v6_images/blob/master/LICENSE) [![Travis build Status](https://travis-ci.org/c2corg/v6_api.svg?branch=master)](https://travis-ci.org/c2corg/v6_api) ![Github Code scanning](https://github.com/c2corg/v6_images/workflows/Github%20Code%20scanning/badge.svg?branch=master) [![Total alerts](https://img.shields.io/lgtm/alerts/g/c2corg/v6_images.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/c2corg/v6_images/alerts/) [![Language grade: Python](https://img.shields.io/lgtm/grade/python/g/c2corg/v6_images.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/c2corg/v6_images/context:python) [![Known Vulnerabilities](https://snyk.io/test/github/c2corg/v6_images/badge.svg)](https://snyk.io/test/github/c2corg/v6_images)
+
 
 # Image backend service
 
