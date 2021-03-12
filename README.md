@@ -1,7 +1,6 @@
-[![GitHub license](https://img.shields.io/github/license/c2corg/v6_images.svg)](https://github.com/c2corg/v6_images/blob/master/LICENSE) [![Travis build Status](https://travis-ci.org/c2corg/v6_api.svg?branch=master)](https://travis-ci.org/c2corg/v6_api) ![Build status](https://github.com/c2corg/v6_images/actions/workflows/build.yml/badge.svg) ![Github Code scanning](https://github.com/c2corg/v6_images/workflows/Github%20Code%20scanning/badge.svg?branch=master) [![Total alerts](https://img.shields.io/lgtm/alerts/g/c2corg/v6_images.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/c2corg/v6_images/alerts/) [![Language grade: Python](https://img.shields.io/lgtm/grade/python/g/c2corg/v6_images.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/c2corg/v6_images/context:python) [![Known Vulnerabilities](https://snyk.io/test/github/c2corg/v6_images/badge.svg)](https://snyk.io/test/github/c2corg/v6_images)
-
-
 # Image backend service
+
+[![GitHub license](https://img.shields.io/github/license/c2corg/v6_images.svg)](https://github.com/c2corg/v6_images/blob/master/LICENSE) ![Build status](https://github.com/c2corg/v6_images/actions/workflows/build.yml/badge.svg) ![Github Code scanning](https://github.com/c2corg/v6_images/workflows/Github%20Code%20scanning/badge.svg?branch=master) [![Total alerts](https://img.shields.io/lgtm/alerts/g/c2corg/v6_images.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/c2corg/v6_images/alerts/) [![Language grade: Python](https://img.shields.io/lgtm/grade/python/g/c2corg/v6_images.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/c2corg/v6_images/context:python) [![Known Vulnerabilities](https://snyk.io/test/github/c2corg/v6_images/badge.svg)](https://snyk.io/test/github/c2corg/v6_images)
 
 This project handles receiving images from the user and generating smaller
 versions. It is using docker to be able to run it either together with the
@@ -148,20 +147,4 @@ To regenerate the *resized* images:
 
 ## Release on docker hub
 
-The project is built by Jenkins.
-
-To make a release:
-
-- Commit and push to master.
-- Tag the GIT commit.
-- Rebase the `release_${MAJOR_VERSION}` branch to this commit and push the `release_${MAJOR_VERSION}` and
-  the tag to github. Make sure to do that at the same time so that Jenkins can see the tag when it builds
-  the branch.
-
-To have the int/prod tag point to another version:
-
-- Fast forward or reset the `release_int` or `release_prod` branch to the wanted version.
-- Push the branch to github.
-
-We need the `release_*` branches, so that Jenkins can build a new docker image for the major
-versions every nights.
+The project is built by Github actions.
