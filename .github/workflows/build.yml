@@ -42,8 +42,10 @@ jobs:
     - name: Run the tests outside the built image
       run: pytest -v tests/wsgi; ERROR=$?; [ 0 -eq $ERROR ] || (scripts/show_logs.sh; exit $ERROR)
   publish:
-    needs: test # only publish if tests passed
-    if: ${{ github.event_name != 'pull_request' }} # not for pull requests
+    # only publish if tests passed
+    needs: test
+    # secrets are not available for PR from forks, and dependabot PRs, we don't want to build them
+    if: ${{ github.event_name != 'pull_request' && github.actor != 'dependabot[bot]' }}
     runs-on: ubuntu-latest
     steps:
       - name: Login to DockerHub
