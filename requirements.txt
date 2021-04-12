@@ -6,4 +6,4 @@ WebTest==2.0.35
 python-json-logger==2.0.1
 flake8==3.9.0
 mypy==0.812
-pytest==6.2.2
+pytest==6.2.3
