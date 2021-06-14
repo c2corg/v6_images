@@ -7,3 +7,4 @@ python-json-logger==2.0.1
 flake8==3.9.2
 mypy==0.902
 pytest==6.2.4
+types-requests==0.1.11
