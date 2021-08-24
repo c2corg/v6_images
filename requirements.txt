@@ -1,10 +1,10 @@
-boto3==1.18.14
+boto3==1.18.27
 c2cwsgiutils[broadcast]>=4.0,<5
 Pillow==8.3.1
-wand==0.6.6
+wand==0.6.7
 WebTest==3.0.0
 python-json-logger==2.0.2
 flake8==3.9.2
 mypy==0.910
 pytest==6.2.4
-types-requests==2.25.2
+types-requests==2.25.6
