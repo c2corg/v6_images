@@ -35,7 +35,7 @@ jobs:
       run: docker-compose stop || true
       if: always()
     - name: Cache pip
-      uses: actions/cache@v2.1.6
+      uses: actions/cache@v2.1.7
       with:
         path: ~/.cache/pip # This path is specific to Ubuntu
         # Look to see if there is a cache hit for the corresponding requirements file
