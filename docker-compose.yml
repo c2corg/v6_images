@@ -57,6 +57,10 @@ services:
     image: minio/mc
     depends_on:
       - minio
+    cap_add:
+      - NET_BIND_SERVICE
+    links:
+      - minio
     entrypoint: >
       /bin/sh -c "
       /usr/bin/mc alias set myminio http://minio:9000 minio miniosecret;
