@@ -1,2 +1,2 @@
-c2cwsgiutils>=4.0,<5
+c2cwsgiutils>=4.0,<7
 requests==2.31.0
